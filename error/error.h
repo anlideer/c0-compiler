@@ -38,6 +38,9 @@ namespace miniplc0 {
 		ErrInvalidAssignment,
 		ErrInvalidPrint,
 		ErrNoRightBracket,
+		ErrNoRightBrace,
+		ErrInvalidInteger,
+		ErrInvalidNotEqual,
 	};
 
 	class CompilationError final{

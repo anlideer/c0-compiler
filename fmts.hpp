@@ -72,6 +72,18 @@ namespace fmt {
 			case miniplc0::ErrNoRightBracket:
 				name = "No matching right bracket.";
 				break;
+			case miniplc0::ErrNoRightBrace:
+				name = "No matching right brace.";
+				break;
+			case miniplc0::ErrInvalidInteger:
+				name = "This should not be an integer.";
+				break;
+			case miniplc0::ErrInvalidNotEqual:
+				name = "Do you mean '!='(not equal)? You should complete it.";
+				break;
+
+			default:
+				name = "Error occurs.";
 			}
 			return format_to(ctx.out(), name);
 		}
