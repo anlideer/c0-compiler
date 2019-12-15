@@ -300,27 +300,27 @@ namespace miniplc0 {
 					}
 					else if (ss.str() == "int")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::INT, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::INT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "if")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::IF, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::IF, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "else")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::ELSE, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::ELSE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "while")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::WHILE, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::WHILE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "scan")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::SCAN, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::SCAN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "print")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  || ss.str() == "for"
 						|| ss.str() == "do" || ss.str() == "return" || ss.str() == "break" || ss.str() == "continue")
@@ -354,27 +354,27 @@ namespace miniplc0 {
 					}
 					else if (ss.str() == "int")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::INT, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::INT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "if")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::IF, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::IF, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "else")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::ELSE, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::ELSE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "while")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::WHILE, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::WHILE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "scan")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::SCAN, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::SCAN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "print")
 					{
-						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, ss.str(), pos, currentPos()), std::make_optional<CompilationError>());
+						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
 					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  || ss.str() == "for"
 						|| ss.str() == "do" || ss.str() == "return" || ss.str() == "break" || ss.str() == "continue")
@@ -496,7 +496,9 @@ namespace miniplc0 {
 				if (!current_char.has_value() || current_char.value() != '=')
 				{
 					unreadLast();
-					return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNotEqual));
+					//return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNotEqual));
+					return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));					
+
 				}
 				// !=
 				else
