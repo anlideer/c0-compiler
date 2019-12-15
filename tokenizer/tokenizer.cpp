@@ -423,7 +423,7 @@ namespace miniplc0 {
 			// =
 			case EQUAL_SIGN_STATE: {
 				// =
-				if (!current_char().has_value() || current_char.value() != '=')
+				if (!current_char.has_value() || current_char.value() != '=')
 				{
 					unreadLast();
 					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, '=', pos, currentPos()), std::optional<CompilationError>());
@@ -473,6 +473,7 @@ namespace miniplc0 {
 				{
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTSMALLER_SIGN, ">=", pos, currentPos()), std::optional<CompilationError>());
 				}
+				break;
 			}
 			// <
 			case SMALLER_STATE:{
@@ -487,6 +488,7 @@ namespace miniplc0 {
 				{
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTBIGGER_SIGN, "<=", pos, currentPos()), std::optional<CompilationError>());
 				}
+				break;
 			}
 			// !
 			case EXCLAMATION_STATE:{
@@ -501,6 +503,7 @@ namespace miniplc0 {
 				{
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTEQUAL_SIGN, "!=", pos, currentPos()), std::optional<CompilationError>());
 				}
+				break;
 			}
 
 			// 预料之外的状态，如果执行到了这里，说明程序异常
