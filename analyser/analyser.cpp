@@ -14,7 +14,7 @@ namespace miniplc0 {
 	// <程序> ::= 'begin'<主过程>'end'
 	std::optional<CompilationError> Analyser::analyseProgram() {
 		// 示例函数，示例如何调用子程序
-
+/*
 		// 'begin'
 		auto bg = nextToken();
 		if (!bg.has_value() || bg.value().GetType() != TokenType::BEGIN)
@@ -30,6 +30,7 @@ namespace miniplc0 {
 		if (!ed.has_value() || ed.value().GetType() != TokenType::END)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoEnd);
 		return {};
+		*/
 	}
 
 	// <主过程> ::= <常量声明><变量声明><语句序列>

@@ -497,7 +497,7 @@ namespace miniplc0 {
 				{
 					unreadLast();
 					//return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNotEqual));
-					return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidInput));					
+					return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNotEqual));					
 
 				}
 				// !=
