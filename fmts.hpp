@@ -30,12 +30,6 @@ namespace fmt {
 			case miniplc0::ErrIntegerOverflow:
 				name = "The integer is too big(int64_t).";
 				break;
-			case miniplc0::ErrNoBegin:
-				name = "The program should start with 'begin'.";
-				break;
-			case miniplc0::ErrNoEnd:
-				name = "The program should end with 'end'.";
-				break;
 			case miniplc0::ErrNeedIdentifier:
 				name = "Need an identifier here.";
 				break;
@@ -133,12 +127,6 @@ namespace fmt {
 			case miniplc0::IDENTIFIER:
 				name = "Identifier";
 				break;
-			case miniplc0::BEGIN:
-				name = "Begin";
-				break;
-			case miniplc0::END:
-				name = "End";
-				break;
 			case miniplc0::VAR:
 				name = "Var";
 				break;
@@ -171,6 +159,48 @@ namespace fmt {
 				break;
 			case miniplc0::RIGHT_BRACKET:
 				name = "RightBracket";
+				break;
+			case miniplc0::VOID:
+				name = "Void";
+				break;
+			case miniplc0::INT:
+				name = "Int";
+				break;
+			case miniplc0::SCAN:
+				name = "Scan";
+				break;
+			case miniplc0::LEFT_BRACE:
+				name = "LeftBrace";
+				break;
+			case miniplc0::RIGHT_BRACE:
+				name = "RightBrace";
+				break;
+			case miniplc0::IF:
+				name = "If";
+				break;
+			case miniplc0::ELSE:
+				name = "Else";
+				break;
+			case miniplc0::WHILE:
+				name = "While";
+				break;
+			case miniplc0::ASSIGN_SIGN:
+				name = "AssignSign";
+				break;
+			case miniplc0::BIGGER_SIGN:
+				name = "BiggerSign";
+				break;
+			case miniplc0::SMALLER_SIGN:
+				name = "SmallerSign";
+				break;
+			case miniplc0::NOTBIGGER_SIGN:
+				name = "NotBiggerSign";
+				break;
+			case miniplc0::NOTSMALLER_SIGN:
+				name = "NotSmallerSign";
+				break;
+			case miniplc0::NOTEQUAL_SIGN:
+				name = "NotEqualSign";
 				break;
 			}
 			return format_to(ctx.out(), name);

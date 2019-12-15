@@ -496,7 +496,6 @@ namespace miniplc0 {
 				if (!current_char.has_value() || current_char.value() != '=')
 				{
 					unreadLast();
-					//return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNotEqual));
 					return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNotEqual));					
 
 				}
