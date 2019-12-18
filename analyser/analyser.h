@@ -35,7 +35,7 @@ namespace miniplc0 {
 		// <程序>
 		std::optional<CompilationError> analyseProgram();
 		// <主过程>
-		std::optional<CompilationError> analyseMain();
+		//std::optional<CompilationError> analyseMain();
 		// <常量声明>
 		std::optional<CompilationError> analyseConstantDeclaration();
 		// <变量声明>
@@ -55,8 +55,19 @@ namespace miniplc0 {
 		std::optional<CompilationError> analyseItem();
 		// <因子>
 		std::optional<CompilationError> analyseFactor();
+		// <function-difinition>
+		std::optional<CompilationError> analyseFunctionDifinition();
+		// <init-decorator-list>
+		std::optional<CompilationError> analyseDecoratorList(bool isConst);
+		// <multiplicative-expression>
+		std::optional<CompilationError> analyseMulExpression();
+		// <function-call>
+		std::optional<CompilationError> analyseFunctionCall();
+		// <unary-expression>
+		std::optional<CompilationError> analyseUnaryExpression();
 
-		// Token 缓冲区相关操作
+
+		// TODO: Token 缓冲区相关操作
 
 		// 返回下一个 token
 		std::optional<Token> nextToken();

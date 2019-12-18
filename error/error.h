@@ -41,6 +41,8 @@ namespace miniplc0 {
 		ErrNoRightBrace,
 		ErrInvalidInteger,
 		ErrInvalidNotEqual,
+		ErrIncompleteFunctionCall,
+		ErrInvalidFunctionDifinition,
 	};
 
 	class CompilationError final{

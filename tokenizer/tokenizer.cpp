@@ -87,6 +87,11 @@ namespace miniplc0 {
 					{
 						current_state = DFAState::UNSIGNED_INTEGER16_STATE;	// hex
 					}
+					// only 0
+					else if (!miniplc0::isdigit(ch))
+					{
+						current_state = DFAState::UNSIGNED_INTEGER10_STATE;	// 10based
+					}
 					else 
 					{
 						unreadLast();
@@ -137,6 +142,9 @@ namespace miniplc0 {
 						break;
 					case '}':
 						current_state = DFAState::RIGHTBRACE_STATE;
+						break;
+					case ',':
+						current_state = DFAState::COMMA_STATE;
 						break;
 
 					// 不接受的字符导致的不合法的状态
@@ -505,6 +513,11 @@ namespace miniplc0 {
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTEQUAL_SIGN, "!=", pos, currentPos()), std::optional<CompilationError>());
 				}
 				break;
+			}
+			// ,
+			case COMMA_STATE:{
+				unreadLast();
+				return std::make_pair(std::make_optional<Token>(TokenType::COMMA, ';', pos, currentPos()), std::optional<CompilationError>());
 			}
 
 			// 预料之外的状态，如果执行到了这里，说明程序异常

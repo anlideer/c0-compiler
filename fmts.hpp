@@ -75,6 +75,9 @@ namespace fmt {
 			case miniplc0::ErrInvalidNotEqual:
 				name = "Do you mean '!='(not equal)? You should complete it.";
 				break;
+			case miniplc0::ErrIncompleteFunctionCall:
+				name = "Incomplete function call";
+				break;
 
 			default:
 				name = "Error occurs.";

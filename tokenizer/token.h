@@ -37,6 +37,7 @@ namespace miniplc0 {
 		NOTBIGGER_SIGN,
 		NOTSMALLER_SIGN,
 		NOTEQUAL_SIGN,
+		COMMA,
 
 	};
 
