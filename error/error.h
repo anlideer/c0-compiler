@@ -43,6 +43,10 @@ namespace miniplc0 {
 		ErrInvalidNotEqual,
 		ErrIncompleteFunctionCall,
 		ErrInvalidFunctionDifinition,
+		ErrInvalidConditionStatement,
+		ErrInvalidStatement,
+		ErrInvalidCondition,
+		
 	};
 
 	class CompilationError final{

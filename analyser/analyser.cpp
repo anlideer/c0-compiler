@@ -132,8 +132,343 @@ namespace miniplc0 {
 		auto next = nextToken();
 		if (!next.has_value())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		else if (next.value().GetType() == TokenType::VOID)
+		{
+			// ...
+		}
+		else if (next.value().GetType() == TokenType::INT)
+		{
+			// ...
+		}
+		else
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		}
+
+		// <identifier>
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		}
+
+		// <parameter-clause>
+		// (
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		// <parameter-declaration-list>
+		auto err = analyseParameterList();
+		if (err.has_value())
+			return err;
+		// )
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 
 
+		// <compound-statement>
+		err = analyseCompoundStatement();
+		if (err.has_value())
+			return err;
+
+		return {};
+
+	}
+
+
+	// <compound-statement>
+	std::optional<CompilationError> Analyser::analyseCompoundStatement(){
+		auto next = nextToken();
+		// {
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		// {variable-declaration} 
+		while(true)
+		{
+			next = nextToken();
+			if (!next.has_value() || (next.value().GetType() != TokenType::CONST && next.value().GetType() != TokenType::INT))
+			{
+				unreadToken();
+				break;
+			}
+
+			unreadToken();
+			auto err = analyseVariableDeclaration();
+			if (err.has_value())
+				return err;
+		}
+
+		// <statement-seq>
+		// pre-read and guide into the right entrance
+		while(true)
+		{
+			next = nextToken();
+			if (!next.has_value() || (next.value().GetType() != TokenType::LEFT_BRACE && next.value().GetType() != TokenType::IF && next.value().GetType() != TokenType::WHILE
+				&& next.value().GetType() != TokenType::PRINT && next.value().GetType() != TokenType::SCAN && next.value().GetType() != TokenType::IDENTIFIER
+				&& next.value().GetType() != TokenType::SEMICOLON))
+			{
+				unreadToken();
+				break;
+			}
+			else
+			{
+				unreadToken();
+				auto err = analyseStatement();
+				if (err.has_value())
+					return err;
+			}
+		}
+
+		// }
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBrace);
+
+		return {};
+
+	}
+
+	// <statement>
+	std::optional<CompilationError> Analyser::analyseStatement(){
+			auto next = nextToken();
+			if (!next.has_value())
+			{
+				unreadToken();
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			}
+			// <compound-statement>
+			else if (next.value().GetType() == TokenType::LEFT_BRACE)
+			{
+				unreadToken();
+				auto err = analyseCompoundStatement();
+				if (err.has_value())
+					return err;
+			}
+			// <condition-statement>
+			else if (next.value().GetType() == TokenType::IF)
+			{
+				unreadToken();
+
+			}
+			// <loop-statement>
+			else if (next.value().GetType() == TokenType::WHILE)
+			{
+				unreadToken();
+
+			}
+			// <print-statement>
+			else if (next.value().GetType() == TokenType::PRINT)
+			{
+				unreadToken();
+
+			}
+			// <scan-statement>
+			else if (next.value().GetType() == TokenType::SCAN)
+			{
+				unreadToken();
+
+			}
+			// <assignment-statement> or <function-call>
+			else if (next.value().GetType() == TokenType::IDENTIFIER)
+			{
+				next = nextToken();
+				if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+				{
+					unreadToken();
+					unreadToken();
+					// <assignment-statement>
+
+				}
+				else
+				{
+					unreadToken();
+					unreadToken();
+					// <function-call>
+
+				}
+
+			}
+			// ;
+			else if (next.value().GetType() == TokenType::SEMICOLON)
+			{
+				// do nothing
+			}
+			else
+			{
+				unreadToken();
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			}
+
+			return {};
+
+	}
+
+
+	// <condition-statement>
+	/*
+	<condition> ::= 
+     	<expression>[<relational-operator><expression>] 
+	<condition-statement> ::= 
+     	'if' '(' <condition> ')' <statement> ['else' <statement>]
+	*/
+	std::optional<CompilationError> Analyser::analyseConditionStatement(){
+		auto next = nextToken();
+		// if
+		if (!next.has_value() || next.value().GetType() != TokenType::IF)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidConditionStatement);
+		// (
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidConditionStatement);
+		// <condition>
+		auto err = analyseCondition();
+		if (err.has_value())
+			return err;
+		// )
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidConditionStatement);
+
+		// <statement>
+		err = analyseStatement();
+		if (err.has_value())
+			return err;
+
+		// ['else' <statement>]
+		next = nextToken();
+		if (next.has_value() && next.value().GetType() == TokenType::ELSE)
+		{
+			// <statement>
+			err = analyseStatement();
+			if (err.has_value())
+				return err;
+		}
+		else
+		{
+			unreadToken();
+		}
+
+		return {};
+
+
+	}
+
+	// <condition> ::= <expression>[<relational-operator><expression>] 
+	std::optional<CompilationError> Analyser::analyseCondition(){
+		auto err = analyseExpression();
+		if (err.has_value())
+			return err;
+		// <realational-operator>
+		auto next = nextToken();
+		bool flag = true;
+		if (!next.has_value())
+		{
+			unreadToken();
+			flag = false;
+		}
+		else if (next.value().GetType() == TokenType::EQUAL_SIGN)
+		{
+			// ...
+		}
+		else if (next.value().GetType() == TokenType::NOTEQUAL_SIGN)
+		{
+			// ...
+		}
+		else if (next.value().GetType() == TokenType::BIGGER_SIGN)
+		{
+			// ...
+		}
+		else if (next.value().GetType() == TokenType::SMALLER_SIGN)
+		{
+			// ... 
+		}
+		else if (next.value().GetType() == TokenType::NOTBIGGER_SIGN)
+		{
+			// ...
+		}
+		else if (next.value().GetType() == TokenType::NOTSMALLER_SIGN)
+		{
+			// ...
+		}
+		else
+		{
+			unreadToken();
+			flag = false;
+		}
+
+		// <expression>
+		if (flag)
+		{
+			auto err = analyseExpression();
+			if (err.has_value())
+				return err;
+		}
+
+		return {};
+
+	}
+
+
+	// <parameter-declaration-list>
+	// ::= <parameter-declaration>{','<parameter-declaration>}
+	std::optional<CompilationError> Analyser::analyseParameterList(){
+		 auto err = analyseParameter();
+		 if (err.has_value())
+		 	return err;
+		 while(true)
+		 {
+		 	auto next = nextToken();
+		 	// ,
+		 	if (!next.has_value() || next.value().GetType() != TokenType::COMMA)
+		 	{
+		 		unreadToken();
+		 		break;
+		 	}
+
+		 	err = analyseParameter();
+		 	if (err.has_value())
+		 		return err;
+		 }
+
+		 return {};
+
+	}
+
+	// <parameter-declaration>
+	std::optional<CompilationError> Analyser::analyseParameter(){
+		auto next = nextToken();
+		if (!next.has_value())
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		else if (next.value().GetType() == TokenType::CONST)
+		{
+			next = nextToken();
+			// ...
+		}
+		else if (next.value().GetType() == TokenType::INT)
+		{
+			// ...
+		}
+		else
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+
+		// I assume that parameter type cannot be 'void'
+		if (!next.has_value())
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		else if (next.value().GetType() == TokenType::INT)
+		{
+			// ...
+		}
+		else
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+
+		// identifier
+		next = nextToken();
+		if (!next.has_value() || next.value().TokenType != TokenType::IDENTIFIER)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		// ...
+
+		return {};
 	}
 
 
@@ -221,103 +556,6 @@ namespace miniplc0 {
 		return {};
 	}
 
-	// <语句序列> ::= {<语句>}
-	// <语句> :: = <赋值语句> | <输出语句> | <空语句>
-	// <赋值语句> :: = <标识符>'='<表达式>';'
-	// <输出语句> :: = 'print' '(' <表达式> ')' ';'
-	// <空语句> :: = ';'
-	// 需要补全
-	std::optional<CompilationError> Analyser::analyseStatementSequence() {
-		while (true) {
-			// 预读
-			auto next = nextToken();
-			if (!next.has_value())
-				return {};
-			unreadToken();
-			if (next.value().GetType() != TokenType::IDENTIFIER &&
-				next.value().GetType() != TokenType::PRINT &&
-				next.value().GetType() != TokenType::SEMICOLON) {
-				return {};
-			}
-			std::optional<CompilationError> err;
-			switch (next.value().GetType()) {
-				// 这里需要你针对不同的预读结果来调用不同的子程序
-				case  TokenType::IDENTIFIER:
-				{
-					auto ident = analyseAssignmentStatement();
-					if (ident.has_value())
-						return ident;
-					break;
-				}
-				case TokenType::PRINT:
-				{
-					auto printSt = analyseOutputStatement();
-					if (printSt.has_value())
-						return printSt;
-					break;
-				}
-				// 注意我们没有针对空语句单独声明一个函数，因此可以直接在这里返回 
-				// and "read" on
-				case TokenType::SEMICOLON:
-				{
-					next = nextToken();
-					break;
-				}
-				default:
-					break;
-			}
-		}
-		return {};
-	}
-
-	// <常表达式> ::= [<符号>]<无符号整数>
-	// 需要补全
-	std::optional<CompilationError> Analyser::analyseConstantExpression(int32_t& out) {
-		// out 是常表达式的结果
-		// 这里你要分析常表达式并且计算结果
-		// 注意以下均为常表达式
-		// +1 -1 1
-		// !!! 同时要注意是否溢出
-		auto next = nextToken();
-
-		if (!next.has_value() || (next.value().GetType() != TokenType::PLUS_SIGN && next.value().GetType() != TokenType::MINUS_SIGN && next.value().GetType() != TokenType::UNSIGNED_INTEGER))
-		{
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-		}
-
-		// + none -
-		// + 
-		if (next.value().GetType() == TokenType::PLUS_SIGN)
-		{
-			next = nextToken();
-			if (!next.has_value() || next.value().GetType() != TokenType::UNSIGNED_INTEGER)
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-			// TODO: overflow
-			
-			out = std::any_cast<int32_t>(next.value().GetValue());
-		}
-		// no
-		else if (next.value().GetType() == TokenType::UNSIGNED_INTEGER)
-		{
-			// TODO: overflow
-			out = std::any_cast<int32_t>(next.value().GetValue());
-		}
-		// -
-		else 
-		{
-			next = nextToken();
-			if (!next.has_value() || next.value().GetType() != TokenType::UNSIGNED_INTEGER)
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-			next = nextToken();
-			if (!next.has_value() || next.value().GetType() != TokenType::UNSIGNED_INTEGER)
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-			// TODO: overflow
-
-			out = -1 * std::any_cast<int32_t>(next.value().GetValue());
-		}
-
-		return {};
-	}
 
 	// <expression> equals to  <additive-expression>
 	// <additive-expression> ::= <multiplicative-expression>{<additive-operator><multiplicative-expression>}
@@ -404,7 +642,7 @@ namespace miniplc0 {
 		{
 			// ...
 		}
-		else if (next.value().GetType() == TokenType::LEFT_BRACE || next.value().GetType() == TokenType::IDENTIFIER || next.value().GetType() == TokenType::UNSIGNED_INTEGER)
+		else if (next.value().GetType() == TokenType::LEFT_BRACKET || next.value().GetType() == TokenType::IDENTIFIER || next.value().GetType() == TokenType::UNSIGNED_INTEGER)
 		{
 			unreadToken();
 		}
@@ -426,7 +664,7 @@ namespace miniplc0 {
 			// see if it's function-call
 			auto next2 = nextToken();
 			// just identifier
-			if (!next2.has_value() || next2.has_value().GetType() != TokenType::LEFT_BRACE)
+			if (!next2.has_value() || next2.has_value().GetType() != TokenType::LEFT_BRACKET)
 			{
 				unreadToken();
 			}
@@ -441,7 +679,7 @@ namespace miniplc0 {
 			}
 
 		}
-		else if (next.has_value().GetType() == TokenType::LEFT_BRACE)
+		else if (next.has_value().GetType() == TokenType::LEFT_BRACKET)
 		{
 			auto err = analyseExpression();
 			if(err.has_value())
@@ -469,7 +707,7 @@ namespace miniplc0 {
 
 		// (
 		next = nextToken();
-		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteFunctionCall);
 		// [expression-list]
 		auto err = analyseExpression();
@@ -492,192 +730,13 @@ namespace miniplc0 {
 		}
 		// )
 		next = nextToken();
-		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteFunctionCall);
 
 		return {};
 	}
 
 	
-
-	// <赋值语句> ::= <标识符>'='<表达式>';'
-	std::optional<CompilationError> Analyser::analyseAssignmentStatement() {
-		// 这里除了语法分析以外还要留意
-		// 标识符声明过吗？
-		// 标识符是常量吗？
-		// 需要生成指令吗？
-		auto next = nextToken();
-		if (!next.has_value())
-			return {};
-		if (next.value().GetType() != TokenType::IDENTIFIER)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidAssignment);
-		// declared?
-		if (!isDeclared(next.value().GetValueString()))
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
-		// constant?
-		if (isConstant(next.value().GetValueString()))
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrAssignToConstant);
-
-		// =
-		auto equl_sign = nextToken();
-		if (!equl_sign.has_value())
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidAssignment);
-
-		// expression
-		auto exp = analyseExpression();
-		if (exp.has_value())
-			return exp;
-			
-		// instructions
-		_instructions.emplace_back(Operation::STO, getStackIndex(next.value().GetValueString()));
-		addVariable(next.value());
-
-
-
-		return {};
-	}
-
-	// <输出语句> ::= 'print' '(' <表达式> ')' ';'
-	std::optional<CompilationError> Analyser::analyseOutputStatement() {
-		// 如果之前 <语句序列> 的实现正确，这里第一个 next 一定是 TokenType::PRINT
-		auto next = nextToken();
-
-		// '('
-		next = nextToken();
-		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
-
-		// <表达式>
-		auto err = analyseExpression();
-		if (err.has_value())
-			return err;
-
-		// ')'
-		next = nextToken();
-		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
-
-		// ';'
-		next = nextToken();
-		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
-
-		// 生成相应的指令 WRT
-		_instructions.emplace_back(Operation::WRT, 0);
-		return {};
-	}
-
-	// <项> :: = <因子>{ <乘法型运算符><因子> }
-	// 需要补全
-	std::optional<CompilationError> Analyser::analyseItem() {
-		// 可以参考 <表达式> 实现
-		auto fac = analyseFactor();
-		if (fac.has_value())
-			return fac;
-
-		while(true)
-		{
-			// pre-read
-			auto next = nextToken();
-			if (!next.has_value())
-				return {};
-			if (next.value().GetType() != TokenType::MULTIPLICATION_SIGN && next.value().GetType() != TokenType::DIVISION_SIGN)
-			{
-				unreadToken();
-				return {};
-			}
-
-			// <factor>
-			fac = analyseFactor();
-			if (fac.has_value())
-				return fac;
-
-			// instructions
-
-			// *
-			if (next.value().GetType() == TokenType::MULTIPLICATION_SIGN)
-			{
-				_instructions.emplace_back(Operation::MUL, 0);
-			}
-			// /
-			else
-			{
-				_instructions.emplace_back(Operation::DIV, 0);
-			}
-
-		}
-
-
-		return {};
-	}
-
-	// <因子> ::= [<符号>]( <标识符> | <无符号整数> | '('<表达式>')' )
-	// 需要补全
-	std::optional<CompilationError> Analyser::analyseFactor() {
-		// [<符号>]
-		auto next = nextToken();
-		auto prefix = 1;
-		if (!next.has_value())
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-		if (next.value().GetType() == TokenType::PLUS_SIGN)
-			prefix = 1;
-		else if (next.value().GetType() == TokenType::MINUS_SIGN) {
-			prefix = -1;
-			_instructions.emplace_back(Operation::LIT, 0);
-		}
-		else
-			unreadToken();
-
-		// 预读
-		next = nextToken();
-		if (!next.has_value())
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-		switch (next.value().GetType()) {
-			// 这里和 <语句序列> 类似，需要根据预读结果调用不同的子程序
-			// 但是要注意 default 返回的是一个编译错误
-			case TokenType::IDENTIFIER:
-			{
-				// declared?
-				if(!isDeclared(next.value().GetValueString()))
-				{
-					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
-				}
-				// initialized?
-				if (!isInitializedVariable(next.value().GetValueString()) && !isConstant(next.value().GetValueString()))
-				{
-					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
-				}
-				_instructions.emplace_back(Operation::LOD, getStackIndex(next.value().GetValueString()));
-				break;
-
-			}	
-			case TokenType::UNSIGNED_INTEGER:
-			{
-				// TODO: overflow
-				
-				_instructions.emplace_back(Operation::LIT, std::any_cast<int32_t>(next.value().GetValue()));
-				break;
-			}
-			case TokenType::LEFT_BRACKET:
-			{
-				auto exp = analyseExpression();
-				if (exp.has_value())
-					return exp;
-				next = nextToken();
-				if (!next.has_value())
-					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
-				break;
-			}
-
-			default:
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-		}
-
-		// 取负
-		if (prefix == -1)
-			_instructions.emplace_back(Operation::SUB, 0);
-		return {};
-	}
 
 	std::optional<Token> Analyser::nextToken() {
 		if (_offset == _tokens.size())
