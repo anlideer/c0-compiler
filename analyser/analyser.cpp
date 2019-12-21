@@ -177,7 +177,7 @@ namespace miniplc0 {
 
 
 		// <compound-statement>
-		err = analyseCompoundStatement();
+		auto err = analyseCompoundStatement();
 		if (err.has_value())
 			return err;
 
