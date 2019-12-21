@@ -38,7 +38,7 @@ namespace miniplc0 {
 				next = nextToken();
 				if (!next.has_value())
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
-				else if (next.value() != TokenType::IDENTIFIER)
+				else if (next.value().GetType() != TokenType::IDENTIFIER)
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
 
 				next = nextToken();
@@ -290,7 +290,7 @@ namespace miniplc0 {
 					unreadToken();
 					unreadToken();
 					// <assignment-statement>
-					auto err = analyseAssignmentExpression();
+					auto err = analyseAssignmentStatement();
 					if (err.has_value())
 						return err;
 				}
@@ -323,7 +323,7 @@ namespace miniplc0 {
 
 
 	// <assignment-expression> ::=  <identifier><assignment-operator><expression>
-	std::optional<CompilationError> Analyser::analyseAssignmentExpression(){
+	std::optional<CompilationError> Analyser::analyseAssignmentStatement(){
 		// <identifier>
 		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
@@ -654,7 +654,7 @@ namespace miniplc0 {
 		if (err.has_value())
 			return err;
 		next = nextToken();
-		if (!next.has_value() || next.value() != TokenType::SEMICOLON)
+		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 
 		return {};
@@ -822,16 +822,16 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
-		else if (next.has_value().GetType() == TokenType::UNSIGNED_INTEGER)
+		else if (next.value().GetType() == TokenType::UNSIGNED_INTEGER)
 		{
 			// ...
 		}
-		else if (next.has_value().GetType() == TokenType::IDENTIFIER)
+		else if (next.value().GetType() == TokenType::IDENTIFIER)
 		{
 			// see if it's function-call
 			auto next2 = nextToken();
 			// just identifier
-			if (!next2.has_value() || next2.has_value().GetType() != TokenType::LEFT_BRACKET)
+			if (!next2.has_value() || next2.value().GetType() != TokenType::LEFT_BRACKET)
 			{
 				unreadToken();
 			}
@@ -846,7 +846,7 @@ namespace miniplc0 {
 			}
 
 		}
-		else if (next.has_value().GetType() == TokenType::LEFT_BRACKET)
+		else if (next.value().GetType() == TokenType::LEFT_BRACKET)
 		{
 			auto err = analyseExpression();
 			if(err.has_value())

@@ -53,7 +53,7 @@ namespace miniplc0 {
 		// <parameter-declaration-list>
 		std::optional<CompilationError> analyseParameterList();
 		// <parameter-declaration>
-		std::optional<CompilationError> analyseParmater();
+		std::optional<CompilationError> analyseParameter();
 		// <compound-statement>
 		std::optional<CompilationError> analyseCompoundStatement();
 		// <condition-statement>
