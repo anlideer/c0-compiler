@@ -44,7 +44,7 @@ namespace miniplc0 {
 				next = nextToken();
 				if (!next.has_value())
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
-				else if (next.value().GetType() == TokenType::EQUAL_SIGN || nextToken.value().GetType() == TokenType::COMMA || nextToken.value().GetType() == TokenType::SEMICOLON)
+				else if (next.value().GetType() == TokenType::ASSIGN_SIGN || nextToken.value().GetType() == TokenType::COMMA || nextToken.value().GetType() == TokenType::SEMICOLON)
 				{
 					isVar = true;
 					unreadToken();
@@ -249,24 +249,36 @@ namespace miniplc0 {
 			else if (next.value().GetType() == TokenType::IF)
 			{
 				unreadToken();
+				auto err = analyseConditionStatement();
+				if (err.has_value())
+					return err;
 
 			}
 			// <loop-statement>
 			else if (next.value().GetType() == TokenType::WHILE)
 			{
 				unreadToken();
+				auto err = analyseLoopStatement();
+				if (err.has_value())
+					return err;
 
 			}
 			// <print-statement>
 			else if (next.value().GetType() == TokenType::PRINT)
 			{
 				unreadToken();
+				auto err = analysePrintStatement();
+				if (err.has_value())
+					return err;
 
 			}
 			// <scan-statement>
 			else if (next.value().GetType() == TokenType::SCAN)
 			{
 				unreadToken();
+				auto err = analyseScanStatement();
+				if (err.has_value())
+					return err;
 
 			}
 			// <assignment-statement> or <function-call>
@@ -278,13 +290,18 @@ namespace miniplc0 {
 					unreadToken();
 					unreadToken();
 					// <assignment-statement>
-
+					auto err = analyseAssignmentExpression();
+					if (err.has_value())
+						return err;
 				}
 				else
 				{
 					unreadToken();
 					unreadToken();
 					// <function-call>
+					auto err = analyseFunctionCall();
+					if (err.has_value())
+						return err;
 
 				}
 
@@ -301,6 +318,156 @@ namespace miniplc0 {
 			}
 
 			return {};
+
+	}
+
+
+	// <assignment-expression> ::=  <identifier><assignment-operator><expression>
+	std::optional<CompilationError> Analyser::analyseAssignmentExpression(){
+		// <identifier>
+		auto next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidAssignment);
+		// <assignment-operator>
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::ASSIGN_SIGN)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidAssignment);
+		// <expression>
+		auto err = analyseExpression();
+		if (err.has_value())
+			return err;
+
+		return {};
+
+	}
+
+	// <scan-statement>
+	/*
+	<scan-statement> ::= 
+    	'scan' '(' <identifier> ')' ';'
+	*/
+	 std::optional<CompilationError> Analyser::analyseScanStatement(){
+	 	auto next = nextToken();
+	 	// scan
+	 	if (!next.has_value() || next.value().GetType() != TokenType::SCAN)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		// (
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		// <identifier>
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
+		// ...
+
+		// )
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+		//;
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+
+		return {};
+
+	 }
+
+	// <print-statement>
+	/*
+	<print-statement> ::= 
+    	'print' '(' [<printable-list>] ')' ';'
+	<printable-list>  ::= 
+    	<printable> {',' <printable>}
+	<printable> ::= 
+    	<expression> 
+	*/
+	std::optional<CompilationError> Analyser::analysePrintStatement(){
+		auto next = nextToken();
+		// print
+		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		// (
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		// pre-read to see if there is <printable-list> or not
+		next = nextToken();
+		// )
+		if (next.has_value() && next.value().GetType() == TokenType::RIGHT_BRACKET)
+		{
+			// pass
+		}
+		// <printable-list>
+		else
+		{
+			unreadToken();
+			auto err = analysePrintableList();
+			if (err.has_value())
+				return err;
+			// )
+			next = nextToken();
+			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+		}
+		// ;
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+
+		return {};
+	}
+
+	// <printable-list>
+	std::optional<CompilationError> Analyser::analysePrintableList(){
+		// <expression>
+		auto err = analyseExpression();
+		if (err.has_value())
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+
+		while(true)
+		{
+			auto next = nextToken();
+			// ,
+			if (!next.has_value() || next.value().GetType() != TokenType::COMMA)
+			{
+				unreadToken();
+				break;
+			}
+			// <expression>
+			err = analyseExpression();
+			if (err.has_value())
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		}
+
+		return {};
+	}
+
+
+	// <loop-statement> ::= 'while' '(' <condition> ')' <statement>
+	std::optional<CompilationError> Analyser::analyseLoopStatement(){
+		auto next = nextToken();
+		// while
+		if (!next.has_value() || next.value().GetType() != TokenType::WHILE)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		next = nextToken();
+		// (
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		// <condition>
+		auto err = analyseCondition();
+		if (err.has_value())
+			return err;
+		// )
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+
+		// <statement>
+		err = analyseStatement();
+		if (err.has_value())
+			return err;
 
 	}
 
@@ -540,7 +707,7 @@ namespace miniplc0 {
 				continue;
 			}
 			// =
-			else if (next.value().GetType() == TokenType::EQUAL_SIGN)
+			else if (next.value().GetType() == TokenType::ASSIGN_SIGN)
 			{
 				auto err = analyseExpression();
 				if (err.has_value())

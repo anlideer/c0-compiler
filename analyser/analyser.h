@@ -62,6 +62,16 @@ namespace miniplc0 {
 		std::optional<CompilationError> analyseCondition();
 		// <statement>
 		std::optional<CompilationError> analyseStatement();
+		// <loop-statement>
+		std::optional<CompilationError> analyseLoopStatement();
+		// <print-statement>
+		std::optional<CompilationError> analysePrintStatement();
+		// <printable-list>
+		std::optional<CompilationError> analysePrintableList();
+		// <scan-statement>
+		std::optional<CompilationError> analyseScanStatement();
+		// <assignment-statement>
+		std::optional<CompilationError> analyseAssignmentStatement();
 
 
 		// TODO: Token 缓冲区相关操作

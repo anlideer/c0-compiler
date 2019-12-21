@@ -434,12 +434,12 @@ namespace miniplc0 {
 				if (!current_char.has_value() || current_char.value() != '=')
 				{
 					unreadLast();
-					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, '=', pos, currentPos()), std::optional<CompilationError>());
+					return std::make_pair(std::make_optional<Token>(TokenType::ASSIGN_SIGN, '=', pos, currentPos()), std::optional<CompilationError>());
 				}
 				// ==
 				else
 				{
-					return std::make_pair(std::make_optional<Token>(TokenType::ASSIGN_SIGN, "==", pos, currentPos()), std::optional<CompilationError>());
+					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, "==", pos, currentPos()), std::optional<CompilationError>());
 				}
 
 			}
