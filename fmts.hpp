@@ -78,6 +78,18 @@ namespace fmt {
 			case miniplc0::ErrIncompleteFunctionCall:
 				name = "Incomplete function call";
 				break;
+			case miniplc0::ErrInvalidFunctionDifinition:
+				name = "Invalid function difinition";
+				break;
+			case miniplc0::ErrInvalidConditionStatement:
+				name = "Invalid condition statement";
+				break;
+			case miniplc0::ErrInvalidStatement:
+				name = "Invalid statement";
+				break;
+			case miniplc0::ErrInvalidCondition:
+				name = "Invalid condition";
+				break;
 
 			default:
 				name = "Error occurs.";
@@ -205,6 +217,11 @@ namespace fmt {
 			case miniplc0::NOTEQUAL_SIGN:
 				name = "NotEqualSign";
 				break;
+			case miniplc0::COMMA:
+				name = "Comma";
+				break;
+			default:
+				name = "Unknown sign";
 			}
 			return format_to(ctx.out(), name);
 		}
