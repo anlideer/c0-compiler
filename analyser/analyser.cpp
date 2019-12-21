@@ -157,10 +157,19 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
-		// <parameter-declaration-list>
-		auto err = analyseParameterList();
-		if (err.has_value())
-			return err;
+		// [<parameter-declaration-list>]
+		next = nextToken();
+		if (next.has_value() && next.value().GetType() != TokenType::RIGHT_BRACKET)
+		{
+			unreadToken();
+			auto err = analyseParameterList();
+			if (err.has_value())
+				return err;
+		}
+		else
+		{
+			unreadToken();
+		}
 		// )
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
