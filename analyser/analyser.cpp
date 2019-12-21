@@ -44,7 +44,7 @@ namespace miniplc0 {
 				next = nextToken();
 				if (!next.has_value())
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
-				else if (next.value().GetType() == TokenType::ASSIGN_SIGN || nextToken.value().GetType() == TokenType::COMMA || nextToken.value().GetType() == TokenType::SEMICOLON)
+				else if (next.value().GetType() == TokenType::ASSIGN_SIGN || next.value().GetType() == TokenType::COMMA || next.value().GetType() == TokenType::SEMICOLON)
 				{
 					isVar = true;
 					unreadToken();
@@ -631,7 +631,7 @@ namespace miniplc0 {
 
 		// identifier
 		next = nextToken();
-		if (!next.has_value() || next.value().TokenType != TokenType::IDENTIFIER)
+		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		// ...
 
@@ -663,7 +663,7 @@ namespace miniplc0 {
 
 	// variable declaration
 	std::optional<CompilationError> Analyser::analyseVariableDeclaration() {
-		next = nextToken();
+		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::INT)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidVariableDeclaration);
 		// init-decorator-list
