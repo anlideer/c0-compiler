@@ -671,7 +671,7 @@ namespace miniplc0 {
 		if (err.has_value())
 			return err;
 		next = nextToken();
-		if (!next.has_value() || next.value() != TokenType::SEMICOLON)
+		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 
 		return {};
