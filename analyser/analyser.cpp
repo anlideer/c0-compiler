@@ -92,6 +92,11 @@ namespace miniplc0 {
 		// this time it's definitely function-definition, so we don't have to pre-read
 		while(true)
 		{
+			auto next = nextToken();
+			if (!next.has_value())
+				break;
+			else
+				unreadToken();
 			auto err = analyseFunctionDifinition();
 			if (err.has_value())
 				return err;
