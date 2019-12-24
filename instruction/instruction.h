@@ -81,8 +81,8 @@ namespace miniplc0 {
 											_name_index = i._name_index; _params_size = i._params_size; _level = i._level; _str = i._str;}
 		Instruction(Instruction&& i) :Instruction() { swap(*this, i); }
 		Instruction& operator=(Instruction i) { swap(*this, i); return *this; }
-		bool operator==(const Instruction& i) const { return _opr == i._opr && _x == i._x && _index == i._index && _name_index = i._name_index && 
-													_params_size = i._params_size && _level = i._level && _str = i._str; }
+		bool operator==(const Instruction& i) const { return _opr == i._opr && _x == i._x && _index == i._index && _name_index == i._name_index && 
+													_params_size == i._params_size && _level == i._level && _str == i._str; }
 
 		Operation GetOperation() const { return _opr; }
 		int32_t GetX() const { return _x; }

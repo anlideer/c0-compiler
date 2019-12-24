@@ -1000,7 +1000,7 @@ namespace miniplc0 {
 	}
 
 	// for local vars add only
-	void Analyser::_add(const Token& tk, std::string level, std::map<std::make_pair(std::string, std::string), int32_t>& mp)
+	void Analyser::_add(const Token& tk, std::string level, std::map<std::pair<std::string, std::string>, int32_t>& mp)
 	 {
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
