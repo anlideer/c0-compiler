@@ -490,20 +490,16 @@ namespace miniplc0 {
     	<expression> 
 	*/
 	std::optional<CompilationError> Analyser::analysePrintStatement(){
-		std::cout << "DEBUG This is print\n";
 		auto next = nextToken();
 		// print
 		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
-		std::cout <<"TOKEN " << next.value().GetValueString() << "\n";
 		// (
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
-		std::cout << "TOKEN " << next.value().GetValueString() << "\n";
 		// pre-read to see if there is <printable-list> or not
 		next = nextToken();
-		std::cout << "DEBUG entering ) or printable-list\n";
 		// )
 		if (next.has_value() && next.value().GetType() == TokenType::RIGHT_BRACKET)
 		{
@@ -513,24 +509,19 @@ namespace miniplc0 {
 		// <printable-list>
 		else
 		{
-			std::cout << "DEBUG Entered\n";
 			unreadToken();
 			auto err = analysePrintableList();
 			if (err.has_value())
 				return err;
-			std::cout << "DEBUG analyse over\n";
 			// )
 			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
-			std::cout << "TOKEN " << next.value().GetValueString() << "\n";
 		}
-		std::cout << "DEBUG \n";
 		// ;
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
-		std::cout << "DEBUG Return \n";
 		return {};
 	}
 
@@ -538,7 +529,7 @@ namespace miniplc0 {
 	std::optional<CompilationError> Analyser::analysePrintableList(){
 		// <expression>
 		auto err = analyseExpression();
-		if (err.has_value())
+		if (!err.has_value())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 
 		while(true)
