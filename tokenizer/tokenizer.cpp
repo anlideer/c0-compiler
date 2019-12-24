@@ -384,8 +384,12 @@ namespace miniplc0 {
 					{
 						return std::make_pair(std::make_optional<Token>(TokenType::PRINT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
+					else if (ss.str() == "return")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::RETURN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
 					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  || ss.str() == "for"
-						|| ss.str() == "do" || ss.str() == "return" || ss.str() == "break" || ss.str() == "continue")
+						|| ss.str() == "do" || ss.str() == "break" || ss.str() == "continue")
 					{
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidIdentifier));
 					}

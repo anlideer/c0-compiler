@@ -1,10 +1,15 @@
 #include "analyser.h"
 #include <climits>
+#include <queue>
 
 namespace miniplc0 {
 
 	// TODO: we can use a queue for temp storage of tokens 
 	// in this case, we also need to adjust the implement of nextToken() & unreadToken()
+
+	// some global vars
+	std::queue<int32_t> jmp_queue;	// store unhandled instructions' index for jump only
+	std::queue<int32_t> call_queue;	// for call only
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -17,7 +22,35 @@ namespace miniplc0 {
 
 	// <C0-program> ::= {<variable-declaration>}{<function-definition>}
 	std::optional<CompilationError> Analyser::analyseProgram() {
+		
 
+		// seek for fuctions' names first
+		// I don't know how to do this seperately, so I just pre-read it all...
+		// (I know it's the worst way to do this...)
+		_instructions.emplace_back(Operation::CONSTANTS);
+		while(true)
+		{
+			auto next = nextToken();
+			if (!next.has_value())
+				break;
+			if (next.value().GetType() == TokenType::IDENTIFIER)
+			{
+				auto next2 = nextToken();
+				if (!next2.has_value())
+					break;
+				// so this is function
+				if (next2.value().GetType() == TokenType::LEFT_BRACKET)
+				{
+					_instructions.emplace_back(Operation::CONST, index_cnt++, next.value().GetValueString());
+
+				}
+			}
+		}
+		resetOffset();
+
+		
+
+		// normal procedure
 		while(true)
 		{
 			// pre-read (I'm so fucking lazy...)
@@ -101,6 +134,9 @@ namespace miniplc0 {
 			if (err.has_value())
 				return err;
 		}
+
+
+		// ? maybe there are some more things need to take care of before returning...
 
 		return {};
 
@@ -277,6 +313,14 @@ namespace miniplc0 {
 					return err;
 
 			}
+			// <jump-statement> (now only <return-statement>)
+			else if (next.value().GetType() == TokenType::RETURN)
+			{
+				unreadToken();
+				auto err = analyseReturnStatement();
+				if (err.has_value())
+					return err;
+			}
 			// <print-statement>
 			else if (next.value().GetType() == TokenType::PRINT)
 			{
@@ -333,6 +377,40 @@ namespace miniplc0 {
 
 			return {};
 
+	}
+
+
+	// <return-statement>
+	// <return-statement> ::= 'return' [<expression>] ';'
+	std::optional<CompilationError> Analyser::analyseReturnStatement(){
+		// return
+		auto next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RETURN)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		// [expression]
+		next = nextToken();
+		if (!next.has_value())
+		{
+			unreadToken();
+		}
+		else if (next.value().GetType() == TokenType::PLUS_SIGN || next.value().GetType() == TokenType::MINUS_SIGN || next.value().GetType() == TokenType::LEFT_BRACKET
+			|| next.value().GetType() == TokenType::UNSIGNED_INTEGER || next.value().GetType() == TokenType::IDENTIFIER)
+		{
+			unreadToken();
+			auto err = analyseExpression();
+			if (err.has_value())
+				return err;
+		}
+		else
+		{
+			unreadToken();
+		}
+		// ;
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+
+		return {};
 	}
 
 
@@ -918,8 +996,18 @@ namespace miniplc0 {
 	}
 
 	
+	void Analyser::resetOffset()
+	{
+		_offset = 0;
+	}
 
-	std::optional<Token> Analyser::nextToken() {
+	void Analyser::resetLocalIndex()
+	{
+		_indexCnt = 0;
+	}
+
+	std::optional<Token> Analyser::nextToken() 
+	{
 		if (_offset == _tokens.size())
 			return {};
 		// 考虑到 _tokens[0..._offset-1] 已经被分析过了
@@ -928,40 +1016,74 @@ namespace miniplc0 {
 		return _tokens[_offset++];
 	}
 
-	void Analyser::unreadToken() {
+	void Analyser::unreadToken() 
+	{
 		if (_offset == 0)
 			DieAndPrint("analyser unreads token from the begining.");
 		_current_pos = _tokens[_offset - 1].GetEndPos();
 		_offset--;
 	}
 
-	void Analyser::_add(const Token& tk, std::map<std::string, int32_t>& mp) {
+	// for local vars add only
+	void Analyser::_add(const Token& tk, string level, std::map<std::make_pair(string, string), int32_t>& mp)
+	 {
+		if (tk.GetType() != TokenType::IDENTIFIER)
+			DieAndPrint("only identifier can be added to the table.");
+		mp[std::make_pair(tk.GetValueString(), level)] = _nextTokenIndex;
+		_nextTokenIndex++;
+	}
+
+	void Analyser::_add_origin(const Token& tk, std::map<string, int32_t>& mp)
+	{
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
 		mp[tk.GetValueString()] = _nextTokenIndex;
 		_nextTokenIndex++;
 	}
 
-	void Analyser::addVariable(const Token& tk) {
-		_add(tk, _vars);
-	}
 
+	void Analyser::addVariable(const Token& tk, string level) {
+		_add(tk, level, _vars);
+	}
+	/*
 	void Analyser::addConstant(const Token& tk) {
 		_add(tk, _consts);
 	}
-
-	void Analyser::addUninitializedVariable(const Token& tk) {
-		_add(tk, _uninitialized_vars);
+	*/
+	void Analyser::addUninitializedVariable(const Token& tk, string level) {
+		_add(tk, level, _uninitialized_vars);
 	}
 
-	void Analyser::addSignal(const Token& tk)
+	// Attention: it's used to track where the variable is
+	void Analyser::addSign(const Token& tk, string level)
 	{
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
 		_allsigns[tk.GetValueString()] = _indexCnt;
 		_indexCnt++;
 	}
+	
+	// Attention: same attention as above
+	void Analyser::addGlobalSign(const Token& tk)
+	{
+		if (tk.GetType() != TokenType::IDENTIFIER)
+			DieAndPrint("only identifier can be added to the table.");
+		_global_signs[tk.GetValueString()] = _global_index;
+		_global_index++;
+	}
 
+	void Analyser::addGlobalVar(const Token& tk)
+	{
+		_add_origin(tk, _global_vars);
+	}
+
+	void Analyser::addGlobalUninitialized(const Token& tk)
+	{
+		_add_origin(tk, _global_uninitialized);
+	}
+
+	// abandon
+	/*
 	int32_t Analyser::getIndex(const std::string& s) {
 
 		if (_uninitialized_vars.find(s) != _uninitialized_vars.end())
@@ -971,14 +1093,20 @@ namespace miniplc0 {
 		else
 			return _consts[s];
 	}
+	*/
 
 	int32_t Analyser::getStackIndex(const std::string& s)
 	{
 		return _allsigns[s];
 	}
 
+	int32_t Analyser::getGlobalIndex(const std::string &s)
+	{
+		return _global_signs[s];
+	}
+
 	bool Analyser::isDeclared(const std::string& s) {
-		return isConstant(s) || isUninitializedVariable(s) || isInitializedVariable(s);
+		return  isUninitializedVariable(s) || isInitializedVariable(s);
 	}
 
 	bool Analyser::isUninitializedVariable(const std::string& s) {
@@ -987,8 +1115,38 @@ namespace miniplc0 {
 	bool Analyser::isInitializedVariable(const std::string&s) {
 		return _vars.find(s) != _vars.end();
 	}
-
+	/*
 	bool Analyser::isConstant(const std::string&s) {
 		return _consts.find(s) != _consts.end();
 	}
+	*/
+	bool Analyser::isGlobalDeclared(const std::string& s)
+	{
+		return isGlobalUninitialized(s) || isGlobalInitialized(s);
+	}
+
+	bool Analyser::isGlobalUninitialized(const std::string& s)
+	{
+		return _global_uninitialized.find(s) != _global_uninitialized.end();
+	}
+
+	bool Analyser::isGlobalInitialized(const std::string& s)
+	{
+		return _global_vars.find(s) != _global_vars.end();
+	}
+
+
+	void Analyser::addFunc(const Token& tk, int32_t pos)
+	{
+		if (tk.GetType() != TokenType::IDENTIFIER)
+			DieAndPrint("only identifier can be added to the table.");
+		_func_map[tk.GetValueString()] = pos;
+	}
+
+	int32_t Analyser::findFunc(const std::string name)
+	{
+		return _func_map[name];
+	}
+
+
 }

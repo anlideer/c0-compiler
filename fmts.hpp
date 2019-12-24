@@ -241,30 +241,111 @@ namespace fmt {
 			case miniplc0::ILL:
 				name = "ILL";
 				break;
-			case miniplc0::ADD:
-				name = "ADD";
+			case miniplc0::CONSTANTS:
+				name = ".constants";
 				break;
-			case miniplc0::SUB:
-				name = "SUB";
+			// this is a special one, I only use it to store the name of function
+			case miniplc0::CONST:
+				name = "S";
 				break;
-			case miniplc0::MUL:
-				name = "MUL";
+			case miniplc0::START:
+				name = ".start";
 				break;
-			case miniplc0::DIV:
-				name = "DIV";
+			case miniplc0::FUNCTIONS:
+				name = ".functions";
 				break;
-			case miniplc0::WRT:
-				name = "WRT";
+			case miniplc0::FUNCN:
+				name = ".F";
 				break;
-			case miniplc0::LIT:
-				name = "LIT";
+			case miniplc0::FUNCINFO:
+				name = "";
 				break;
-			case miniplc0::LOD:
-				name = "LOD";
+			case miniplc0::LOADA:
+				name = "loada";
 				break;
-			case miniplc0::STO:
-				name = "STO";
+			case miniplc0::LOADC:
+				name = "loadc";
 				break;
+			case miniplc0::IPUSH:
+				name = "ipush";
+				break;
+			case miniplc0::ILOAD:
+				name = "iload";
+				break;
+			case miniplc0::ISTORE:
+				name = "istore";
+				break;
+			case miniplc0::NEW:
+				name = "new";
+				break;
+			case miniplc0::SNEW:
+				name = "snew";
+				break;
+			case miniplc0::POP:
+				name = "pop";
+				break;
+			case miniplc0::DUP:
+				name = "dup";
+				break;
+			case miniplc0::IADD:
+				name = "iadd";
+				break;
+			case miniplc0::ISUB:
+				name = "isub";
+				break;
+			case miniplc0::IMUL:
+				name = "imul";
+				break;
+			case miniplc0::IDIV:
+				name = "idiv";
+				break;
+			case miniplc0::INEG:
+				name = "ineg";
+				break;
+			case miniplc0::ICMP:
+				name = "icmp";
+				break;
+			case miniplc0::JE:
+				name = "je";
+				break;
+			case miniplc0::JNE:
+				name = "jne";
+				break;
+			case miniplc0::JL:
+				name = "jl";
+				break;
+			case miniplc0::JGE:
+				name = "jge";
+				break;
+			case miniplc0::JG:
+				name = "jg";
+				break;
+			case miniplc0::JLE:
+				name = "jle";
+				break;
+			case miniplc0::JMP:
+				name = "jmp";
+				break;
+			case miniplc0::CALL:
+				name = "call";
+				break;
+			case miniplc0::RET:
+				name = "ret";
+				break;
+			case miniplc0::IRET:
+				name = "iret";
+				break;
+			case miniplc0::IPRINT:
+				name = "iprint";
+				break;
+			case miniplc0::CPRINT:
+				name = "cprint";
+				break;
+			case miniplc0::ISCAN:
+				name = "iscan";
+				break;
+
+			
 			}
 			return format_to(ctx.out(), name);
 		}
@@ -280,6 +361,69 @@ namespace fmt {
 			switch (p.GetOperation())
 			{
 			case miniplc0::ILL:
+				return format_to(ctx.out(), "{}", p.GetOperation());
+
+			case miniplc0::CONSTANTS:
+				return format_to(ctx.out(), "{}", p.GetOperation());
+			// CONST is a special operation, please pay more attention to it
+			case miniplc0::CONST:
+				return format_to(ctx.out(), "{} {} \"{}\"", p.GetIndex(), p.GetOperation(), p.GetStr());
+			case miniplc0::START:
+				return format_to(ctx.out(), "{}", p.GetOperation());
+			case miniplc0::FUNCTIONS:
+				return format_to(ctx.out(), "{}", p.GetOperation());
+			case miniplc0::FUNCN:
+				return format_to(ctx.out(), "{}{}", p.GetOperations(), p.GetX());
+			case miniplc0::FUNCINFO:
+				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetNameOperation(), p.GetParamsSize(), p.GetLevel());
+
+			case miniplc0::LOADA:
+				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetOperation(), p.GetLevel(), p.GetX());
+			case miniplc0::LOADC:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::IPUSH:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::ILOAD:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::ISTORE:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::NEW:
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
+			case miniplc0::SNEW:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::POP:
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperations());
+			case miniplc0::DUP:
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
+
+			case miniplc0::IADD:
+			case miniplc0::ISUB:
+			case miniplc0::IMUL:
+			case miniplc0::IDIV:
+			case miniplc0::INEG:
+			case miniplc0::ICMP:
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
+
+			case miniplc0::JE:
+			case miniplc0::JNE:
+			case miniplc0::JL:
+			case miniplc0::JGE:
+			case miniplc0::JG:
+			case miniplc0::JLE:
+			case miniplc0::JMP:
+			case miniplc0::CALL:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::RET:
+			case miniplc0::IRET:
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
+
+			case miniplc0::IPRINT:
+			case miniplc0::CPRINT:
+			case miniplc0::ISCAN:
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
+
+
+			/*
 			case miniplc0::ADD:
 			case miniplc0::SUB:
 			case miniplc0::MUL:
@@ -290,6 +434,7 @@ namespace fmt {
 			case miniplc0::LOD:
 			case miniplc0::STO:
 				return format_to(ctx.out(), "{} {}", p.GetOperation(), p.GetX());
+			*/
 			}
 			return format_to(ctx.out(), "ILL");
 		}
