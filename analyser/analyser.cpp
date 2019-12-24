@@ -888,7 +888,7 @@ namespace miniplc0 {
 	// <additive-expression> ::= <multiplicative-expression>{<additive-operator><multiplicative-expression>}
 	std::optional<CompilationError> Analyser::analyseExpression() {
 		auto err = analyseMulExpression();
-		if (!err.has_value())
+		if (err.has_value())
 			return err;
 		while(true)
 		{
@@ -1095,6 +1095,10 @@ namespace miniplc0 {
 			auto err = analyseExpression();
 			if(err.has_value())
 				return err;
+			// )
+			auto next2 = nextToken();
+			if (!next2.has_value() || next2.value().GetType() != TokenType::RIGHT_BRACKET)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 		}
 		else
 		{
