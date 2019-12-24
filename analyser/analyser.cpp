@@ -787,15 +787,15 @@ namespace miniplc0 {
 				{
 					// store const
 					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);	// 0 is to just take the place
-					addGlobalConstant(next.value().GetValueString());
-					addGlobalSign(next.value().GetValueString());
+					addGlobalConstant(next.value());
+					addGlobalSign(next.value());
 				}
 				else
 				{
 					// store var
 					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);
-					addGlobalUninitialized(next.value().GetValueString());
-					addGlobalSign(next.value().GetValueString());
+					addGlobalUninitialized(next.value());
+					addGlobalSign(next.value());
 				}
 			}
 			// local
