@@ -1165,7 +1165,8 @@ namespace miniplc0 {
 		}
 
 		// do the negative instruction at last
-		_instructions.emplace_back(Operation::INEG, indexCnt++);
+		if (needNeg)
+			_instructions.emplace_back(Operation::INEG, indexCnt++);
 
 		// debug
 		//next = nextToken();
