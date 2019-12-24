@@ -529,8 +529,8 @@ namespace miniplc0 {
 	std::optional<CompilationError> Analyser::analysePrintableList(){
 		// <expression>
 		auto err = analyseExpression();
-		if (!err.has_value())
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
+		if (err.has_value())
+			return err;
 
 		while(true)
 		{
@@ -544,7 +544,7 @@ namespace miniplc0 {
 			// <expression>
 			err = analyseExpression();
 			if (err.has_value())
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
+				return err;
 		}
 
 		// debug
