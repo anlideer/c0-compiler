@@ -73,7 +73,7 @@ namespace miniplc0 {
 		Instruction(Operation opr, int32_t index, int32_t x, int32_t level): _opr(opr), _index(index), _x(x), _level(level){}
 		Instruction(Operation opr, int32_t index, int32_t x): _opr(opr), _index(index), _x(x){}
 		Instruction(Operation opr, int32_t index): _opr(opr), _index(index){}
-		Instruction(Operation opr, int32_t index, std::string str): _opr(opr), _index(index), _str(str){}
+		Instruction(Operation opr, int32_t index, std::string& str): _opr(opr), _index(index), _str(str){}
 		Instruction(Operation opr): _opr(opr){}
 
 		
@@ -114,5 +114,6 @@ namespace miniplc0 {
 		swap(lhs._name_index, rhs._name_index);
 		swap(lhs._params_size, rhs._params_size);
 		swap(lhs._level, rhs._level);
+		swap(lhs._str, rhs._str);
 	}
 }
