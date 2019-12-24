@@ -490,6 +490,7 @@ namespace miniplc0 {
     	<expression> 
 	*/
 	std::optional<CompilationError> Analyser::analysePrintStatement(){
+		std::cout << "DEBUG This is print\n";
 		auto next = nextToken();
 		// print
 		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
