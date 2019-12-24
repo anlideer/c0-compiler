@@ -31,12 +31,12 @@ namespace miniplc0 {
 	std::optional<CompilationError> Analyser::analyseProgram() {
 
 		_instructions.emplace_back(Operation::CONSTANTS);
-		constIt = _instructions.begin() + 1;
 
 		// .start: ... all in this loop
 		// every var definied in this loop is global var
 		handleGlobal = true;
 		_instructions.emplace_back(Operation::START);
+		constIt = _instructions.end() - 1;
 		while(true)
 		{
 			// pre-read (I'm so fucking lazy...)
