@@ -14,6 +14,7 @@ namespace miniplc0 {
 	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
+	std::string funcNames;	// for every single func-difinition / func-call, we need to give its name to this variable
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -182,6 +183,8 @@ namespace miniplc0 {
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		}
+		// update func name
+		currentFunc = next.value().GetValueString();
 
 		// <parameter-clause>
 		// (
@@ -212,6 +215,9 @@ namespace miniplc0 {
 		if (err.has_value())
 			return err;
 
+
+		// update func name
+		currentFunc = "";
 		return {};
 
 	}
@@ -1015,20 +1021,20 @@ namespace miniplc0 {
 					{
 						// load
 						int offset_tmp = getGlobalIndex(next.value().GetValueString());
-						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, level);
+						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
 					}
 				}
 				// local
-				else if (isDeclared(next.value().GetValueString()))
+				else if (isDeclared(next.value().GetValueString(), currentFunc))
 				{
-					if (!isInitializedVariable(next.value().GetValueString()) && !isConst(next.value().GetValueString()))
+					if (!isInitializedVariable(next.value().GetValueString(), currentFunc) && !isConst(next.value().GetValueString(), currentFunc))
 					{
 						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
 					}
 					else
 					{
 						// load
-						int offset_tmp = getStackIndex(next.value().GetValueString());
+						int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
 						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
 					}
 				}
@@ -1081,9 +1087,11 @@ namespace miniplc0 {
     	<expression>{','<expression>}
 	*/
 	std::optional<CompilationError> Analyser::analyseFunctionCall(){
+		// <identifier>
 		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteFunctionCall);
+		auto func_tmp = next;
 
 		// (
 		next = nextToken();
@@ -1112,6 +1120,9 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteFunctionCall);
+
+
+		// TODO: instruction call the func
 
 		return {};
 	}
