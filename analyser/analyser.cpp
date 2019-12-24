@@ -1360,7 +1360,7 @@ namespace miniplc0 {
 		
 		_func_map[name] = pos;
 
-		_func_type_map[tk.GetValueString()] = type;
+		_func_type_map[name] = type;
 	}
 
 	int32_t Analyser::findFunc(const std::string& name)
