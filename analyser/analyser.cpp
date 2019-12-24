@@ -234,6 +234,7 @@ namespace miniplc0 {
 		// I cannot think of a case that level != 1...
 		
 		_instructions.insert(_instructions.begin()+funcPos, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
+		funcPos++;
 		
 
 		// then we enter the "difinition" of this function
