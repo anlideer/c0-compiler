@@ -548,7 +548,7 @@ namespace miniplc0 {
 		}
 
 		// debug
-		next = nextToken();
+		auto next = nextToken();
 		unreadToken();
 		std::cout << "RETURNING from printable-list, now the token is:" << next.value().GetValueString() << "\n";
 
