@@ -11,7 +11,7 @@ namespace miniplc0 {
 	std::queue<std::vector<Instruction>::iterator> call_queue;	// for call only
 	int indexCnt = 0;	// for all index count
 	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
-	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
+	//std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	int funcCnt = 0;
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
@@ -36,7 +36,7 @@ namespace miniplc0 {
 		// every var definied in this loop is global var
 		handleGlobal = true;
 		_instructions.emplace_back(Operation::START);
-		constIt = _instructions.end() - 1;
+		//constIt = _instructions.end() - 1;
 		while(true)
 		{
 			// pre-read (I'm so fucking lazy...)
@@ -221,14 +221,14 @@ namespace miniplc0 {
 		// ok, that's enough for us to genreate .functions
 		// .constants first
 		// we need to be very careful here!
-		_instructions.insert(constIt, Instruction(Operation::CONSTANT, funcCnt, ident_tmp.value().GetValueString()));
-		constIt++;
+		_instructions.insert(_instructions.begin()+funcCnt+1, Instruction(Operation::CONSTANT, funcCnt, ident_tmp.value().GetValueString()));
+		//constIt++;
 		funcIt++;
 		// then .functions
 		// also very careful!
 		// I cannot think of a case that level != 1...
-		_instructions.insert(funcIt, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
-		funcIt++;
+		//_instructions.insert(funcIt, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
+		//funcIt++;
 
 		// then we enter the "difinition" of this function
 		_instructions.emplace_back(Operation::FUNCN, 0, funcCnt);	// we don't need index here, so filling any value is ok
