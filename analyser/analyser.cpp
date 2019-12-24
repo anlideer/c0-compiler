@@ -425,6 +425,7 @@ namespace miniplc0 {
 		if (!next.has_value())
 		{
 			unreadToken();
+			_instructions.emplace_back(Operation::RET, indexCnt++);
 		}
 		else if (next.value().GetType() == TokenType::PLUS_SIGN || next.value().GetType() == TokenType::MINUS_SIGN || next.value().GetType() == TokenType::LEFT_BRACKET
 			|| next.value().GetType() == TokenType::UNSIGNED_INTEGER || next.value().GetType() == TokenType::IDENTIFIER)
@@ -433,10 +434,12 @@ namespace miniplc0 {
 			auto err = analyseExpression();
 			if (err.has_value())
 				return err;
+			_instructions.emplace_back(Operation::IRET, indexCnt++);
 		}
 		else
 		{
 			unreadToken();
+			_instructions.emplace_back(Operation::RET, indexCnt++);
 		}
 		// ;
 		next = nextToken();
@@ -518,7 +521,24 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
-		// ...
+
+		// load var first
+		// declared? 
+		if (isGlobalDeclared(next.value().GetValueString()))
+		{	
+			int offset_tmp = getGlobalIndex(next.value().GetValueString());
+			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+		}
+		else if (isDeclared(next.value().GetValueString(), currentFunc))
+		{
+			int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
+			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+		}
+		else
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
+		}
+		
 
 		// )
 		next = nextToken();
@@ -529,6 +549,9 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 
+		// iscan and store
+		_instructions.emplace_back(Operation::ISCAN, indexCnt++);
+		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
 		return {};
 
 	 }
@@ -575,6 +598,8 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+		// instruction print
+		_instructions.emplace_back(Operation::IPRINT, indexCnt++);
 		return {};
 	}
 
