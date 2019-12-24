@@ -9,7 +9,9 @@
 #include <utility>
 #include <map>
 #include <cstdint>
-#include <cstddef> // for std::size_t
+#include <cstddef> // for std::size_t'
+#include <queue>
+#include <climits>
 
 namespace miniplc0 {
 
@@ -93,12 +95,14 @@ namespace miniplc0 {
 
 		// 添加变量、常量、未初始化的变量
 		void addVariable(const Token&, const std::string&);
-		//void addConstant(const Token&);
+		void addConstant(const Token&, const std::string&);
 		void addUninitializedVariable(const Token&, const std::string&);
 		void addSign(const Token&, const std::string&);
 		void addGlobalSign(const Token&);
 		void addGlobalVar(const Token&);
 		void addGlobalUninitialized(const Token&);
+		void addGlobalConstant(const Token&);
+
 
 
 		// 是否被声明过
@@ -107,12 +111,13 @@ namespace miniplc0 {
 		bool isUninitializedVariable(const std::string&, const std::string&);
 		// 是否是已初始化的变量
 		bool isInitializedVariable(const std::string&, const std::string&);
-		// 是否是常量
-		//bool isConstant(const std::string&);
+		// 是否是常量	// we still need this... for const can't be reassigned
+		bool isConstant(const std::string&, const std::string&);
 		// 获得 {变量，常量} 在栈上的偏移
-		bool isGlobalDeclared(const std::string& s);
-		bool isGlobalUninitialized(const std::string& s);
-		bool isGlobalInitialized(const std::string& s);
+		bool isGlobalDeclared(const std::string&);
+		bool isGlobalUninitialized(const std::string&);
+		bool isGlobalInitialized(const std::string& );
+		bool isGlobalConstant(const std::string&);
 
 
 		
@@ -142,11 +147,12 @@ namespace miniplc0 {
 		// for local variables, there is a string(function name) to see where it is
 		std::map<std::pair<std::string, std::string>, int32_t> _uninitialized_vars;	// uninitialized
 		std::map<std::pair<std::string, std::string>, int32_t> _vars;	// initialized vars, including consts
-		//std::map<std::string, int32_t> _consts;	// const
+		std::map<std::pair<std::string, std::string>, int32_t> _consts;	// const
 		std::map<std::pair<std::string, std::string>, int32_t> _allsigns;	// all vars
 		std::map<std::string, int32_t> _global_signs;	// global signs
 		std::map<std::string, int32_t> _global_vars;	// global initialized vars
 		std::map<std::string, int32_t> _global_uninitialized;	// global uninitialized
+		std::map<std::string, int32_t> _global_consts;
 
 		std::map<std::string, int32_t> _func_map;
 

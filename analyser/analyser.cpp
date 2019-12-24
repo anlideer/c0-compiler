@@ -1,6 +1,5 @@
 #include "analyser.h"
-#include <climits>
-#include <queue>
+
 
 namespace miniplc0 {
 
@@ -10,8 +9,11 @@ namespace miniplc0 {
 	// some global vars
 	std::queue<int32_t> jmp_queue;	// store unhandled instructions' index for jump only
 	std::queue<int32_t> call_queue;	// for call only
-	int globalCnt = 0;
-	int localCnt = 0;
+	int globalCnt = 0;	// .start: ... end pos
+	int localCnt = 0;	// .F?: ... end pos
+	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos
+	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
+	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -25,7 +27,13 @@ namespace miniplc0 {
 	// <C0-program> ::= {<variable-declaration>}{<function-definition>}
 	std::optional<CompilationError> Analyser::analyseProgram() {
 
-		// normal procedure
+		_instructions.emplace_back(Operation::CONSTANTS);
+		constIt = _instructions.begin() + 1;
+
+		// .start: ... all in this loop
+		// every var definied in this loop is global var
+		handleGlobal = true;
+		_instructions.emplace_back(Operation::START);
 		while(true)
 		{
 			// pre-read (I'm so fucking lazy...)
@@ -97,6 +105,8 @@ namespace miniplc0 {
 			}
 		}
 
+
+		handleGlobal = false;
 		// this time it's definitely function-definition, so we don't have to pre-read
 		while(true)
 		{
@@ -1020,11 +1030,11 @@ namespace miniplc0 {
 	void Analyser::addVariable(const Token& tk, const std::string& level) {
 		_add(tk, level, _vars);
 	}
-	/*
-	void Analyser::addConstant(const Token& tk) {
-		_add(tk, _consts);
+	
+	void Analyser::addConstant(const Token& tk, const std::string& level) {
+		_add(tk, level, _consts);
 	}
-	*/
+	
 	void Analyser::addUninitializedVariable(const Token& tk, const std::string& level) {
 		_add(tk, level, _uninitialized_vars);
 	}
@@ -1057,18 +1067,11 @@ namespace miniplc0 {
 		_add_origin(tk, _global_uninitialized);
 	}
 
-	// abandon
-	/*
-	int32_t Analyser::getIndex(const std::string& s) {
-
-		if (_uninitialized_vars.find(s) != _uninitialized_vars.end())
-			return _uninitialized_vars[s];
-		else if (_vars.find(s) != _vars.end())
-			return _vars[s];
-		else
-			return _consts[s];
+	void Analyser::addGlobalConstant(const Token& tk)
+	{
+		_add_origin(tk, _global_consts);
 	}
-	*/
+
 
 	int32_t Analyser::getStackIndex(const std::string& s, const std::string& level)
 	{
@@ -1081,7 +1084,7 @@ namespace miniplc0 {
 	}
 
 	bool Analyser::isDeclared(const std::string& s, const std::string& level) {
-		return  isUninitializedVariable(s, level) || isInitializedVariable(s, level);
+		return  isUninitializedVariable(s, level) || isInitializedVariable(s, level) || isConstant(s, level);
 	}
 
 	bool Analyser::isUninitializedVariable(const std::string& s, const std::string& level) {
@@ -1090,14 +1093,14 @@ namespace miniplc0 {
 	bool Analyser::isInitializedVariable(const std::string& s, const std::string& level) {
 		return _vars.find(std::make_pair(s, level)) != _vars.end();
 	}
-	/*
-	bool Analyser::isConstant(const std::string&s) {
-		return _consts.find(s) != _consts.end();
+	
+	bool Analyser::isConstant(const std::string& s, const std::string& level) {
+		return _consts.find(std::make_pair(s, level)) != _consts.end();
 	}
-	*/
+	
 	bool Analyser::isGlobalDeclared(const std::string& s)
 	{
-		return isGlobalUninitialized(s) || isGlobalInitialized(s);
+		return isGlobalUninitialized(s) || isGlobalInitialized(s) || isGlobalConstant(s);
 	}
 
 	bool Analyser::isGlobalUninitialized(const std::string& s)
@@ -1109,6 +1112,12 @@ namespace miniplc0 {
 	{
 		return _global_vars.find(s) != _global_vars.end();
 	}
+
+	bool Analyser::isGlobalConstant(const std::string& s)
+	{
+		return _global_consts.find(s) != _global_consts.end();
+	}
+
 
 
 	void Analyser::addFunc(const Token& tk, int32_t pos)
