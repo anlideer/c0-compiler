@@ -509,6 +509,7 @@ namespace miniplc0 {
 		// <printable-list>
 		else
 		{
+			std::cout << "DEBUG Entered\n";
 			unreadToken();
 			auto err = analysePrintableList();
 			if (err.has_value())
