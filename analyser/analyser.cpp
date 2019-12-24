@@ -14,7 +14,7 @@ namespace miniplc0 {
 	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
-	std::string funcNames;	// for every single func-difinition / func-call, we need to give its name to this variable
+	std::string currentFunc;	// for every single func-difinition / func-call, we need to give its name to this variable
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
