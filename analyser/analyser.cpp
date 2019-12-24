@@ -7,11 +7,10 @@ namespace miniplc0 {
 	// in this case, we also need to adjust the implement of nextToken() & unreadToken()
 
 	// some global vars
-	std::queue<int32_t> jmp_queue;	// store unhandled instructions' index for jump only
-	std::queue<int32_t> call_queue;	// for call only
-	int globalCnt = 0;	// .start: ... end pos
-	int localCnt = 0;	// .F?: ... end pos
-	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos
+	std::queue<std::vector<Instruction>::iterator> jmp_queue;	// store unhandled instructions' index for jump only
+	std::queue<std::vector<Instruction>::iterator> call_queue;	// for call only
+	int indexCnt = 0;	// for all index count
+	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	
@@ -107,9 +106,12 @@ namespace miniplc0 {
 
 
 		handleGlobal = false;
+		_instructions.emplace_back(Operation::FUNCTIONS);	// .functions:
+		funcIt = _instructions.end() - 1;	// need to be upadted when appending new func or constant (actually they are done together, so +2 each func)
 		// this time it's definitely function-definition, so we don't have to pre-read
 		while(true)
 		{
+			indexCnt = 0;
 			auto next = nextToken();
 			if (!next.has_value())
 				break;
@@ -766,12 +768,42 @@ namespace miniplc0 {
 	std::optional<CompilationError> Analyser::analyseDecoratorList(bool isConst){
 		while(true)
 		{
+			// <identifier>
 			auto next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			{
 				unreadToken();
 				break;
 			}
+
+			// TODO: see if it's already defined?
+			// ...
+			// store identifier
+			auto tmpvar = next;
+			// global
+			if (handleGlobal)
+			{
+				if (isConst)
+				{
+					// store const
+					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);	// 0 is to just take the place
+					addGlobalConstant(next.value().GetValueString());
+					addGlobalSign(next.value().GetValueString());
+				}
+				else
+				{
+					// store var
+					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);
+					addGlobalUninitialized(next.value().GetValueString());
+					addGlobalSign(next.value().GetValueString());
+				}
+			}
+			// local
+			else
+			{
+				// ...
+			}
+
 			next = nextToken();
 			if (!next.has_value())
 			{
@@ -785,10 +817,24 @@ namespace miniplc0 {
 			}
 			// =
 			else if (next.value().GetType() == TokenType::ASSIGN_SIGN)
-			{
+			{	
+				// load the address, get prepared for istore
+				if (handleGlobal)
+				{
+					_instructions.emplace_back(Operation::LOADA, indexCnt++, getGlobalIndex(tmpvar.value().GetValueString()), 0);
+				}
+				else
+				{
+					//...
+				}
+
 				auto err = analyseExpression();
 				if (err.has_value())
 					return err;
+
+				// now the number is at the top of the stack, just istore it
+				_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+
 			}
 			else
 			{

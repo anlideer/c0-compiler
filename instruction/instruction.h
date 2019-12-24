@@ -70,6 +70,7 @@ namespace miniplc0 {
 		friend void swap(Instruction& lhs, Instruction& rhs);
 	public:
 		Instruction(Operation opr, int32_t index, int32_t x, int32_t name_index, int32_t params_size, int32_t level) : _opr(opr), _index(index), _x(x), _name_index(name_index), _params_size(params_size), _level(level){}
+		Instruction(Operation opr, int32_t index, int32_t x, int32_t level): _opr(opr), _index(index), _x(x), _level(level){}
 		Instruction(Operation opr, int32_t index, int32_t x): _opr(opr), _index(index), _x(x){}
 		Instruction(Operation opr, int32_t index): _opr(opr), _index(index){}
 		Instruction(Operation opr, int32_t index, string str): _opr(opr), _index(index), _str(str){}
