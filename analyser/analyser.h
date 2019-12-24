@@ -12,6 +12,7 @@
 #include <cstddef> // for std::size_t'
 #include <queue>
 #include <climits>
+#include <string>
 
 namespace miniplc0 {
 
