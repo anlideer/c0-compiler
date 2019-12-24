@@ -232,7 +232,7 @@ namespace miniplc0 {
 		// also very careful!
 		// I cannot think of a case that level != 1...
 		std::cout << (funcIt+funcCnt).toString() << "\n";
-		std::cout <<< _instructions.end() << "\n";
+		std::cout << _instructions.end() << "\n";
 		//_instructions.insert(funcIt+funcCnt, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
 		
 
