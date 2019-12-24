@@ -424,6 +424,23 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidAssignment);
 		auto tmpvar = next;
+		// load it in advance
+		// instruction
+		if (isGlobalDeclared(tmpvar.value().GetValueString()))
+		{
+			int offset_tmp = getGlobalIndex(tmpvar.value().GetValueString());
+			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+		}
+		else if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
+		{
+			int offset_tmp = getStackIndex(tmpvar.value().GetValueString(), currentFunc);
+			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+		}
+		else
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
+		}
+
 		// <assignment-operator>
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::ASSIGN_SIGN)
@@ -433,13 +450,19 @@ namespace miniplc0 {
 		if (err.has_value())
 			return err;
 		// after it, add it to our map
-		if (handleGlobal)
+		// instruction: store it 
+		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+		if (isGlobalDeclared(tmpvar.value().GetValueString()))
 		{
-			addGlobalVar(tmpvar.value());
+			addGlobalVar(tmpvar.value().GetValueString());
+		}
+		else if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
+		{
+			addVariable(tmpvar.value().GetValueString(), currentFunc);
 		}
 		else
 		{
-			addVariable(tmpvar.value(), currentFunc);
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
 		}
 
 
@@ -548,9 +571,9 @@ namespace miniplc0 {
 		}
 
 		// debug
-		auto next = nextToken();
-		unreadToken();
-		std::cout << "RETURNING from printable-list, now the token is:" << next.value().GetValueString() << "\n";
+		//auto next = nextToken();
+		//unreadToken();
+		//std::cout << "RETURNING from printable-list, now the token is:" << next.value().GetValueString() << "\n";
 
 		return {};
 	}
