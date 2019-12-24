@@ -500,6 +500,7 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 		// pre-read to see if there is <printable-list> or not
 		next = nextToken();
+		std::cout << "DEBUG entering ) or printable-list\n";
 		// )
 		if (next.has_value() && next.value().GetType() == TokenType::RIGHT_BRACKET)
 		{
@@ -517,6 +518,7 @@ namespace miniplc0 {
 			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 		}
+		std::cout << "DEBUG \n"l;
 		// ;
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
