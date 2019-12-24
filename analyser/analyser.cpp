@@ -486,11 +486,11 @@ namespace miniplc0 {
 		auto next = nextToken();
 		// print
 		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 		// (
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 		// pre-read to see if there is <printable-list> or not
 		next = nextToken();
 		// )
@@ -523,7 +523,7 @@ namespace miniplc0 {
 		// <expression>
 		auto err = analyseExpression();
 		if (err.has_value())
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 
 		while(true)
 		{
@@ -537,7 +537,7 @@ namespace miniplc0 {
 			// <expression>
 			err = analyseExpression();
 			if (err.has_value())
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 		}
 
 		return {};
