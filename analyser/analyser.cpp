@@ -227,8 +227,8 @@ namespace miniplc0 {
 		// then .functions
 		// also very careful!
 		// I cannot think of a case that level != 1...
-		//_instructions.insert(funcIt, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
-		//funcIt++;
+		_instructions.insert(funcIt+funcCnt+1, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
+		
 
 		// then we enter the "difinition" of this function
 		_instructions.emplace_back(Operation::FUNCN, 0, funcCnt);	// we don't need index here, so filling any value is ok
