@@ -102,7 +102,7 @@ namespace miniplc0 {
 		int32_t _name_index = 0;
 		int32_t _params_size = 0;
 		int32_t _level = 0;
-		string _str = "";
+		std::string _str = "";
 
 	};
 

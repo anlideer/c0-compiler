@@ -186,8 +186,7 @@ namespace miniplc0 {
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		}
-		auto ident_tmp = next;
-		std::cout << "value " << next.value().GetValueString() << "\n";
+		std::string ident_tmp = next.value().GetValueString();
 		// update func name
 		currentFunc = next.value().GetValueString();
 
