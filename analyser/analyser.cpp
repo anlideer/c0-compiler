@@ -10,9 +10,10 @@ namespace miniplc0 {
 	std::queue<std::vector<Instruction>::iterator> jmp_queue;	// store unhandled instructions' index for jump only
 	std::queue<std::vector<Instruction>::iterator> call_queue;	// for call only
 	int indexCnt = 0;	// for all index count
-	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
+	//std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	//std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	int funcCnt = 0;
+	int funcPos = 0;
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
 	std::string currentFunc;	// for every single func-difinition / func-call, we need to give its name to this variable
@@ -111,7 +112,7 @@ namespace miniplc0 {
 
 		handleGlobal = false;
 		_instructions.emplace_back(Operation::FUNCTIONS);	// .functions:
-		funcIt = _instructions.end() - 1;	// need to be upadted when appending new func or constant (actually they are done together, so +2 each func)
+		funcPos = std::distance(_instructions.begin(), _instructions.end());	// need to be upadted when appending new func or constant (actually they are done together, so +2 each func)
 		// this time it's definitely function-definition, so we don't have to pre-read
 		while(true)
 		{
@@ -227,13 +228,12 @@ namespace miniplc0 {
 		ins_tmp.SetStr(ident_tmp);
 		_instructions.insert(_instructions.begin()+funcCnt+1, ins_tmp);
 		//constIt++;
-		funcIt++;
+		funcPos++;
 		// then .functions
 		// also very careful!
 		// I cannot think of a case that level != 1...
-		std::cout << std::to_string(std::distance(_instructions.begin(), funcIt))<< "\n";
-		std::cout << std::to_string(std::distance(_instructions.begin(), _instructions.end())) << "\n";
-		//_instructions.insert(funcIt+funcCnt, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
+		
+		_instructions.insert(_instructions.begin()+funcPos, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
 		
 
 		// then we enter the "difinition" of this function
