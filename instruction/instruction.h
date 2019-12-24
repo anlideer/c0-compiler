@@ -92,6 +92,10 @@ namespace miniplc0 {
 		int32_t GetParamsSize() const {return _params_size;}
 		int32_t GetLevel() const {return _level;}
 		std::string GetStr() const {return _str;}
+		// I have no idea...
+		void SetOperation(Operation opr){_opr = opr;}
+		void SetIndex(int32_t index){_index = index;}
+		void SetStr(std::string& str){_str = str;std::cout<<_str;}
 	private:
 		// set default value
 		Operation _opr = Operation::ILL;
