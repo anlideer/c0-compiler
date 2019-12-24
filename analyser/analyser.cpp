@@ -1108,6 +1108,10 @@ namespace miniplc0 {
 		// do the negative instruction at last
 		_instructions.emplace_back(Operation::INEG, indexCnt++);
 
+		// debug
+		next = nextToken();
+		unreadToken();
+		std::cout << "RETURNING from expression, now the token is:" << next.value.GetValueString() << "\n";
 		return {};
 	}
 
