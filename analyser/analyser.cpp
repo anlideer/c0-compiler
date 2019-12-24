@@ -888,7 +888,7 @@ namespace miniplc0 {
 	// <additive-expression> ::= <multiplicative-expression>{<additive-operator><multiplicative-expression>}
 	std::optional<CompilationError> Analyser::analyseExpression() {
 		auto err = analyseMulExpression();
-		if (err.has_value())
+		if (!err.has_value())
 			return err;
 		while(true)
 		{
