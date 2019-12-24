@@ -518,7 +518,7 @@ namespace miniplc0 {
 			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 		}
-		std::cout << "DEBUG \n"l;
+		std::cout << "DEBUG \n";
 		// ;
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
