@@ -1027,7 +1027,7 @@ namespace miniplc0 {
 				// local
 				else if (isDeclared(next.value().GetValueString(), currentFunc))
 				{
-					if (!isInitializedVariable(next.value().GetValueString(), currentFunc) && !isConst(next.value().GetValueString(), currentFunc))
+					if (!isInitializedVariable(next.value().GetValueString(), currentFunc) && !isConstant(next.value().GetValueString(), currentFunc))
 					{
 						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
 					}

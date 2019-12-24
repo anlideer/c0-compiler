@@ -131,7 +131,7 @@ namespace miniplc0 {
 		// to remember function index in .constants
 		void addFunc(const Token&, int32_t pos, const TokenType);
 		int32_t findFunc(const std::string&);
-		std::string getFuncType(const std::string&);
+		TokenType getFuncType(const std::string&);
 
 	private:
 		std::vector<Token> _tokens;
