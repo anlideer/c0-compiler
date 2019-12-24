@@ -1075,7 +1075,7 @@ namespace miniplc0 {
 		return _allsigns[std::make_pair(s, level)];
 	}
 
-	int32_t Analyser::getGlobalIndex(const std::string& &s)
+	int32_t Analyser::getGlobalIndex(const std::string& s)
 	{
 		return _global_signs[s];
 	}
