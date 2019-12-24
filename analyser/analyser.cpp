@@ -1000,7 +1000,7 @@ namespace miniplc0 {
 	}
 
 	// for local vars add only
-	void Analyser::_add(const Token& tk, const std::string level, std::map<std::pair<std::string, std::string>, int32_t>& mp)
+	void Analyser::_add(const Token& tk, const std::string& level, std::map<std::pair<std::string, std::string>, int32_t>& mp)
 	 {
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
@@ -1017,7 +1017,7 @@ namespace miniplc0 {
 	}
 
 
-	void Analyser::addVariable(const Token& tk, const std::string level) {
+	void Analyser::addVariable(const Token& tk, const std::string& level) {
 		_add(tk, level, _vars);
 	}
 	/*
@@ -1025,12 +1025,12 @@ namespace miniplc0 {
 		_add(tk, _consts);
 	}
 	*/
-	void Analyser::addUninitializedVariable(const Token& tk, const std::string level) {
+	void Analyser::addUninitializedVariable(const Token& tk, const std::string& level) {
 		_add(tk, level, _uninitialized_vars);
 	}
 
 	// Attention: it's used to track where the variable is
-	void Analyser::addSign(const Token& tk, const std::string level)
+	void Analyser::addSign(const Token& tk, const std::string& level)
 	{
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
@@ -1075,7 +1075,7 @@ namespace miniplc0 {
 		return _allsigns[std::make_pair(s, level)];
 	}
 
-	int32_t Analyser::getGlobalIndex(const std::string &s)
+	int32_t Analyser::getGlobalIndex(const std::string& &s)
 	{
 		return _global_signs[s];
 	}
@@ -1084,10 +1084,10 @@ namespace miniplc0 {
 		return  isUninitializedVariable(s, level) || isInitializedVariable(s, level);
 	}
 
-	bool Analyser::isUninitializedVariable(const std::string& s, const std::string level) {
+	bool Analyser::isUninitializedVariable(const std::string& s, const std::string& level) {
 		return _uninitialized_vars.find(std::make_pair(s, level)) != _uninitialized_vars.end();
 	}
-	bool Analyser::isInitializedVariable(const std::string& s, const std::string level) {
+	bool Analyser::isInitializedVariable(const std::string& s, const std::string& level) {
 		return _vars.find(std::make_pair(s, level)) != _vars.end();
 	}
 	/*
@@ -1118,7 +1118,7 @@ namespace miniplc0 {
 		_func_map[tk.GetValueString()] = pos;
 	}
 
-	int32_t Analyser::findFunc(const std::string name)
+	int32_t Analyser::findFunc(const std::string& name)
 	{
 		return _func_map[name];
 	}
