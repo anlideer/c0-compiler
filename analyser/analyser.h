@@ -129,7 +129,7 @@ namespace miniplc0 {
 		void resetLocalIndex();
 
 		// to remember function index in .constants
-		void addFunc(const Token&, int32_t pos, const TokenType);
+		void addFunc(std::string, int32_t pos, const TokenType);
 		int32_t findFunc(const std::string&);
 		TokenType getFuncType(const std::string&);
 

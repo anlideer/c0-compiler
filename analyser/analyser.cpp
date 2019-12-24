@@ -216,7 +216,7 @@ namespace miniplc0 {
 
 
 		// add to table
-		addFunc(ident_tmp.value(), funcCnt, type_tmp);
+		addFunc(ident_tmp, funcCnt, type_tmp);
 
 		// ok, that's enough for us to genreate .functions
 		// .constants first
@@ -1355,11 +1355,10 @@ namespace miniplc0 {
 
 
 
-	void Analyser::addFunc(const Token& tk, int32_t pos, const TokenType type)
+	void Analyser::addFunc(std::string name, int32_t pos, const TokenType type)
 	{
-		if (tk.GetType() != TokenType::IDENTIFIER)
-			DieAndPrint("only identifier can be added to the table.");
-		_func_map[tk.GetValueString()] = pos;
+		
+		_func_map[name] = pos;
 
 		_func_type_map[tk.GetValueString()] = type;
 	}
