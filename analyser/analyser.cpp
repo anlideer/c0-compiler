@@ -495,10 +495,12 @@ namespace miniplc0 {
 		// print
 		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
+		std::cout <<"TOKEN " << next.value().GetValueString() << "\n";
 		// (
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
+		std::cout << "TOKEN " << next.value().GetValueString() << "\n";
 		// pre-read to see if there is <printable-list> or not
 		next = nextToken();
 		std::cout << "DEBUG entering ) or printable-list\n";
@@ -506,6 +508,7 @@ namespace miniplc0 {
 		if (next.has_value() && next.value().GetType() == TokenType::RIGHT_BRACKET)
 		{
 			// pass
+			std::cout << ")\n";
 		}
 		// <printable-list>
 		else
@@ -515,10 +518,12 @@ namespace miniplc0 {
 			auto err = analysePrintableList();
 			if (err.has_value())
 				return err;
+			std::cout << "DEBUG analyse over\n";
 			// )
 			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+			std::cout << "TOKEN " << next.value().GetValueString() << "\n";
 		}
 		std::cout << "DEBUG \n";
 		// ;
