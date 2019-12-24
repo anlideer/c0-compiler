@@ -10,7 +10,7 @@ namespace miniplc0 {
 
 		// .???
 		CONSTANTS, // .constants
-		CONST, // {index} {type} {content}
+		CONSTANT, // {index} {type} {content}
 		START,	// .start
 		FUNCTIONS, // .functions
 		FUNCN, // .Fn
@@ -82,7 +82,7 @@ namespace miniplc0 {
 		Instruction(Instruction&& i) :Instruction() { swap(*this, i); }
 		Instruction& operator=(Instruction i) { swap(*this, i); return *this; }
 		bool operator==(const Instruction& i) const { return _opr == i._opr && _x == i._x && _index == i._index && _name_index = i._name_index && 
-													_params_size = i._params_size && _level = i._level; _str = i._str; }
+													_params_size = i._params_size && _level = i._level && _str = i._str; }
 
 		Operation GetOperation() const { return _opr; }
 		int32_t GetX() const { return _x; }
@@ -92,15 +92,16 @@ namespace miniplc0 {
 		int32_t GetLevel() const {return _level;}
 		string GetStr() const {return _str;}
 	private:
-		Operation _opr;
-		int32_t _x;
+		// set default value
+		Operation _opr = Operation::ILL;
+		int32_t _x = 0;
 		// append some attrs
-		int32_t _index;
+		int32_t _index = 0;
 		// for function difinition only
-		int32_t _name_index;
-		int32_t _params_size;
-		int32_t _level;
-		string _str;
+		int32_t _name_index = 0;
+		int32_t _params_size = 0;
+		int32_t _level = 0;
+		string _str = "";
 
 	};
 

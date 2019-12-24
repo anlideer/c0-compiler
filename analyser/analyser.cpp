@@ -10,6 +10,8 @@ namespace miniplc0 {
 	// some global vars
 	std::queue<int32_t> jmp_queue;	// store unhandled instructions' index for jump only
 	std::queue<int32_t> call_queue;	// for call only
+	int globalCnt = 0;
+	int localCnt = 0;
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -22,33 +24,6 @@ namespace miniplc0 {
 
 	// <C0-program> ::= {<variable-declaration>}{<function-definition>}
 	std::optional<CompilationError> Analyser::analyseProgram() {
-		
-
-		// seek for fuctions' names first
-		// I don't know how to do this seperately, so I just pre-read it all...
-		// (I know it's the worst way to do this...)
-		_instructions.emplace_back(Operation::CONSTANTS);
-		while(true)
-		{
-			auto next = nextToken();
-			if (!next.has_value())
-				break;
-			if (next.value().GetType() == TokenType::IDENTIFIER)
-			{
-				auto next2 = nextToken();
-				if (!next2.has_value())
-					break;
-				// so this is function
-				if (next2.value().GetType() == TokenType::LEFT_BRACKET)
-				{
-					_instructions.emplace_back(Operation::CONST, index_cnt++, next.value().GetValueString());
-
-				}
-			}
-		}
-		resetOffset();
-
-		
 
 		// normal procedure
 		while(true)

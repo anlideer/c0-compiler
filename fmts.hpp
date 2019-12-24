@@ -245,7 +245,7 @@ namespace fmt {
 				name = ".constants";
 				break;
 			// this is a special one, I only use it to store the name of function
-			case miniplc0::CONST:
+			case miniplc0::CONSTANT:
 				name = "S";
 				break;
 			case miniplc0::START:
@@ -366,7 +366,7 @@ namespace fmt {
 			case miniplc0::CONSTANTS:
 				return format_to(ctx.out(), "{}", p.GetOperation());
 			// CONST is a special operation, please pay more attention to it
-			case miniplc0::CONST:
+			case miniplc0::CONSTANT:
 				return format_to(ctx.out(), "{} {} \"{}\"", p.GetIndex(), p.GetOperation(), p.GetStr());
 			case miniplc0::START:
 				return format_to(ctx.out(), "{}", p.GetOperation());

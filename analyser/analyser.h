@@ -88,25 +88,25 @@ namespace miniplc0 {
 		// 下面是符号表相关操作
 
 		// helper function
-		void _add(const Token&, string level, std::map<std::pair<string, string>, int32_t>&);
-		void _add_origin(const Token&, std::map<string, int32_t>&);
+		void _add(const Token&, std::string, std::map<std::pair<std::string, std::string>, int32_t>&);
+		void _add_origin(const Token&, std::map<std::string, int32_t>&);
 
 		// 添加变量、常量、未初始化的变量
-		void addVariable(const Token&, string level);
+		void addVariable(const Token&, std::string);
 		//void addConstant(const Token&);
-		void addUninitializedVariable(const Token&, string level);
-		void addSign(const Token&, string level);
+		void addUninitializedVariable(const Token&, std::string);
+		void addSign(const Token&, std::string);
 		void addGlobalSign(const Token&);
 		void addGlobalVar(const Token&);
 		void addGlobalUninitialized(const Token&);
 
 
 		// 是否被声明过
-		bool isDeclared(const std::string&, string level);
+		bool isDeclared(const std::string&, std::string );
 		// 是否是未初始化的变量
-		bool isUninitializedVariable(const std::string&, string level);
+		bool isUninitializedVariable(const std::string&, std::string);
 		// 是否是已初始化的变量
-		bool isInitializedVariable(const std::string&, string level);
+		bool isInitializedVariable(const std::string&, std::string);
 		// 是否是常量
 		//bool isConstant(const std::string&);
 		// 获得 {变量，常量} 在栈上的偏移
@@ -116,7 +116,7 @@ namespace miniplc0 {
 
 
 		
-		int32_t getStackIndex(const std::string&, string level);
+		int32_t getStackIndex(const std::string&, std::string);
 		int32_t getGlobalIndex(const std::string&);
 
 		// reset
@@ -125,7 +125,7 @@ namespace miniplc0 {
 
 		// to remember function index in .constants
 		void addFunc(const Token&, int32_t pos);
-		int32_t findFunc(const string name);
+		int32_t findFunc(const std::string);
 
 	private:
 		std::vector<Token> _tokens;
