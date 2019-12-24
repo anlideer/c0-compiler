@@ -13,6 +13,7 @@ namespace miniplc0 {
 	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
+	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -117,9 +118,11 @@ namespace miniplc0 {
 				break;
 			else
 				unreadToken();
+			levelCnt = 1;
 			auto err = analyseFunctionDifinition();
 			if (err.has_value())
 				return err;
+			levelCnt = 0;
 		}
 
 
@@ -855,17 +858,44 @@ namespace miniplc0 {
 			return err;
 		while(true)
 		{
+			bool isPlus = false;	// or it's minus
 			// + / -
 			auto next = nextToken();
-			if (!next.has_value() || (next.value().GetType() != TokenType::PLUS_SIGN && next.value().GetType() != TokenType::MINUS_SIGN))
+			if (!next.has_value())
 			{
 				unreadToken();
 				break;
 			}
+			// plus
+			else if (next.value().GetType() == TokenType::PLUS_SIGN)
+			{
+				isPlus = true;
+			}
+			// minus
+			else if (next.value().GetType() == TokenType::MINUS_SIGN)
+			{
+				isPlus = false;
+			}
+			else
+			{
+				unreadToken();
+				break;
+			}
+
 			// mul-exp
 			auto err = analyseMulExpression();
 			if (err.has_value())
 				return err;
+
+			// do the instruction
+			if (isPlus)
+			{
+				_instructions.emplace_back(Operation::IADD, indexCnt++);
+			}
+			else
+			{
+				_instructions.emplace_back(Operation::ISUB, indexCnt++);
+			}
 		}
 
 		return {};
@@ -889,6 +919,7 @@ namespace miniplc0 {
 			return err;
 		while(true)
 		{
+			bool isMul = false;	// or it's DIV
 			auto next = nextToken();
 			if (!next.has_value())
 			{
@@ -897,11 +928,11 @@ namespace miniplc0 {
 			}
 			else if (next.value().GetType() == TokenType::MULTIPLICATION_SIGN)
 			{
-				// ...
+				isMul = true;
 			}
 			else if (next.value().GetType() == TokenType::DIVISION_SIGN)
 			{
-				// ...
+				isMul = false;
 			}
 			else
 			{
@@ -912,6 +943,18 @@ namespace miniplc0 {
 			err = analyseUnaryExpression();
 			if (err.has_value())
 				return err;
+
+			// do the instruction
+			// mul
+			if (isMul)
+			{
+				_instructions.emplace_back(Operation::IMUL, indexCnt++);
+			}
+			// div
+			else
+			{
+				_instructions.emplace_back(Operation::IDIV, indexCnt++);
+			}
 		}
 
 		return {};
@@ -924,13 +967,14 @@ namespace miniplc0 {
 		auto next = nextToken();
 		if (!next.has_value())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
+		bool needNeg = false;
 		if (next.value().GetType() == TokenType::PLUS_SIGN)
 		{
-			// ...
+			needNeg = false;
 		}
 		else if (next.value().GetType() == TokenType::MINUS_SIGN)
 		{
-			// ...
+			needNeg = true;
 		}
 		else if (next.value().GetType() == TokenType::LEFT_BRACKET || next.value().GetType() == TokenType::IDENTIFIER || next.value().GetType() == TokenType::UNSIGNED_INTEGER)
 		{
@@ -947,7 +991,8 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
 		else if (next.value().GetType() == TokenType::UNSIGNED_INTEGER)
 		{
-			// ...
+			// push it directly
+			_instructions.emplace_back(Operation::IPUSH, indexCnt++, next.value());
 		}
 		else if (next.value().GetType() == TokenType::IDENTIFIER)
 		{
@@ -957,12 +1002,54 @@ namespace miniplc0 {
 			if (!next2.has_value() || next2.value().GetType() != TokenType::LEFT_BRACKET)
 			{
 				unreadToken();
+				// load identifier to the top of the stack
+				// isdeclared?
+				// global
+				if (isGlobalDeclared(next.value().GetValueString()))
+				{
+					if (!isGlobalInitialized(next.value().GetValueString()) && !isGlobalConstant(next.value().GetValueString()))
+					{
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+					}
+					else
+					{
+						// load
+						int offset_tmp = getGlobalIndex(next.value().GetValueString());
+						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, level);
+					}
+				}
+				// local
+				else if (isDeclared(next.value().GetValueString()))
+				{
+					if (!isInitializedVariable(next.value().GetValueString()) && !isConst(next.value().GetValueString()))
+					{
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+					}
+					else
+					{
+						// load
+						int offset_tmp = getStackIndex(next.value().GetValueString());
+						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+					}
+				}
+				else
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
+				}
+				
 			}
 			// func call
 			else
 			{
 				unreadToken();
 				unreadToken();
+				// remember to push the needed value to stack
+				// see if the func returns void or int
+				// void is not acceptable
+				if (getFuncType(next.value().GetValueString()) != TokenType::INT)
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrVoidCantCalculate);
+				}
 				auto err = analyseFunctionCall();
 				if (err.has_value())
 					return err;
@@ -979,6 +1066,9 @@ namespace miniplc0 {
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteExpression);
 		}
+
+		// do the negative instruction at last
+		_instructions.emplace_back(Operation::INEG, indexCnt++);
 
 		return {};
 	}
@@ -1166,16 +1256,23 @@ namespace miniplc0 {
 
 
 
-	void Analyser::addFunc(const Token& tk, int32_t pos)
+	void Analyser::addFunc(const Token& tk, int32_t pos, const TokenType type)
 	{
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
 		_func_map[tk.GetValueString()] = pos;
+
+		_func_type_map[tk.GetValueString()] = type;
 	}
 
 	int32_t Analyser::findFunc(const std::string& name)
 	{
 		return _func_map[name];
+	}
+
+	TokenType Analyser::getFuncType(const std::string& name)
+	{
+		return _func_type_map[name];
 	}
 
 

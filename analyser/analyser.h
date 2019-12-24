@@ -129,8 +129,9 @@ namespace miniplc0 {
 		void resetLocalIndex();
 
 		// to remember function index in .constants
-		void addFunc(const Token&, int32_t pos);
+		void addFunc(const Token&, int32_t pos, const TokenType);
 		int32_t findFunc(const std::string&);
+		std::string getFuncType(const std::string&);
 
 	private:
 		std::vector<Token> _tokens;
@@ -154,7 +155,9 @@ namespace miniplc0 {
 		std::map<std::string, int32_t> _global_uninitialized;	// global uninitialized
 		std::map<std::string, int32_t> _global_consts;
 
+		// for functions
 		std::map<std::string, int32_t> _func_map;
+		std::map<std::string, TokenType> _func_type_map;
 
 		// 下一个 token 在栈的偏移
 		int32_t _nextTokenIndex;	// actually this var is useless (but we use it... so can't be deleted)

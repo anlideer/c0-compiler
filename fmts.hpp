@@ -90,6 +90,9 @@ namespace fmt {
 			case miniplc0::ErrInvalidCondition:
 				name = "Invalid condition";
 				break;
+			case miniplc0::ErrVoidCantCalculate:
+				name = "Function returns void cannot be calculated";
+				break;
 
 			default:
 				name = "Error occurs.";
