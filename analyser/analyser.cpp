@@ -221,7 +221,7 @@ namespace miniplc0 {
 		// ok, that's enough for us to genreate .functions
 		// .constants first
 		// we need to be very careful here!
-		_instructions.insert(_instructions.begin()+funcCnt+1, Instruction(Operation::CONSTANT, funcCnt, ident_tmp.value().GetValueString()));
+		_instructions.insert(_instructions.begin()+funcCnt+1, Instruction(Operation::CONSTANT, funcCnt, ident_tmp));
 		//constIt++;
 		funcIt++;
 		// then .functions
