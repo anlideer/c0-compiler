@@ -416,6 +416,7 @@ namespace miniplc0 {
 		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidAssignment);
+		auto tmpvar = next;
 		// <assignment-operator>
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::ASSIGN_SIGN)
@@ -424,6 +425,16 @@ namespace miniplc0 {
 		auto err = analyseExpression();
 		if (err.has_value())
 			return err;
+		// after it, add it to our map
+		if (handleGlobal)
+		{
+			addGlobalVar(tmpvar.value());
+		}
+		else
+		{
+			addVariable(tmpvar.value(), currentFunc);
+		}
+
 
 		return {};
 
@@ -828,13 +839,14 @@ namespace miniplc0 {
 			else if (next.value().GetType() == TokenType::ASSIGN_SIGN)
 			{	
 				// load the address, get prepared for istore
+				// both global and local, the level is always 0 (just defined...)
 				if (handleGlobal)
 				{
 					_instructions.emplace_back(Operation::LOADA, indexCnt++, getGlobalIndex(tmpvar.value().GetValueString()), 0);
 				}
 				else
 				{
-					//...
+					_instructions.emplace_back(Operation::LOADA, indexCnt++, getStackIndex(tmpvar.value().GetValueString(), currentFunc), 0);
 				}
 
 				auto err = analyseExpression();
@@ -843,6 +855,15 @@ namespace miniplc0 {
 
 				// now the number is at the top of the stack, just istore it
 				_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+				// update the maps
+				if (handleGlobal)
+				{
+					addGlobalVar(tmpvar.value());
+				}
+				else
+				{
+					addVariable(tmpvar.value(), currentFunc);
+				}
 
 			}
 			else
@@ -1013,7 +1034,7 @@ namespace miniplc0 {
 				// global
 				if (isGlobalDeclared(next.value().GetValueString()))
 				{
-					if (!isGlobalInitialized(next.value().GetValueString()) && !isGlobalConstant(next.value().GetValueString()))
+					if (!isGlobalInitialized(next.value().GetValueString()))
 					{
 						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
 					}
@@ -1027,7 +1048,7 @@ namespace miniplc0 {
 				// local
 				else if (isDeclared(next.value().GetValueString(), currentFunc))
 				{
-					if (!isInitializedVariable(next.value().GetValueString(), currentFunc) && !isConstant(next.value().GetValueString(), currentFunc))
+					if (!isInitializedVariable(next.value().GetValueString(), currentFunc))
 					{
 						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
 					}
