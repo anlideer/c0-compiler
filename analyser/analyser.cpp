@@ -12,9 +12,11 @@ namespace miniplc0 {
 	int indexCnt = 0;	// for all index count
 	std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
+	int funcCnt = 0;
 	bool handleGlobal;	// to flag that what we are handling is global or functional...
 	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
 	std::string currentFunc;	// for every single func-difinition / func-call, we need to give its name to this variable
+	int param_size_tmp = 0;
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -161,16 +163,17 @@ namespace miniplc0 {
 	*/
 	std::optional<CompilationError> Analyser::analyseFunctionDifinition(){
 		// <type-specifier>
+		TokenType type_tmp;
 		auto next = nextToken();
 		if (!next.has_value())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		else if (next.value().GetType() == TokenType::VOID)
 		{
-			// ...
+			type_tmp = TokenType::VOID;
 		}
 		else if (next.value().GetType() == TokenType::INT)
 		{
-			// ...
+			type_tmp = TokenType::INT;
 		}
 		else
 		{
@@ -183,6 +186,7 @@ namespace miniplc0 {
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		}
+		auto ident_tmp = next;
 		// update func name
 		currentFunc = next.value().GetValueString();
 
@@ -196,6 +200,7 @@ namespace miniplc0 {
 		if (next.has_value() && next.value().GetType() != TokenType::RIGHT_BRACKET)
 		{
 			unreadToken();
+			param_size_tmp = 0;
 			auto err = analyseParameterList();
 			if (err.has_value())
 				return err;
@@ -210,6 +215,24 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 
 
+		// add to table
+		addFunc(ident_tmp.value(), funcCnt, type_tmp);
+
+		// ok, that's enough for us to genreate .functions
+		// .constants first
+		// we need to be very careful here!
+		_instructions.insert(constIt, new Instruction(Operation::CONSTANT, funcCnt, ident_tmp.value().GetValueString()));
+		constIt++;
+		funcIt++;
+		// then .functions
+		// also very careful!
+		// I cannot think of a case that level != 1...
+		_instructions.insert(funcIt, new Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
+		funcIt++;
+
+		// then we enter the "difinition" of this function
+		_instructions.emplace_back(Operation::FUNCN, 0, funcCnt);	// we don't need index here, so filling any value is ok
+		funcCnt++;
 		// <compound-statement>
 		auto err = analyseCompoundStatement();
 		if (err.has_value())
@@ -730,6 +753,7 @@ namespace miniplc0 {
 		 	err = analyseParameter();
 		 	if (err.has_value())
 		 		return err;
+		 	param_size_tmp++;
 		 }
 
 		 return {};
