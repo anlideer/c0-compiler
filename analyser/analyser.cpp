@@ -347,6 +347,10 @@ namespace miniplc0 {
 					auto err = analyseAssignmentStatement();
 					if (err.has_value())
 						return err;
+					// ;
+					next = nextToken();
+					if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
 				}
 				else
 				{
@@ -356,7 +360,10 @@ namespace miniplc0 {
 					auto err = analyseFunctionCall();
 					if (err.has_value())
 						return err;
-
+					// ;
+					next = nextToken();
+					if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);					
 				}
 
 			}
