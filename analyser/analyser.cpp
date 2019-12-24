@@ -231,8 +231,8 @@ namespace miniplc0 {
 		// then .functions
 		// also very careful!
 		// I cannot think of a case that level != 1...
-		std::cout << std::to_string(funcIt+funcCnt)<< "\n";
-		std::cout << std::to_string(_instructions.end()) << "\n";
+		std::cout << std::to_string(std::distance(_instructions.begin(), funcIt))<< "\n";
+		std::cout << std::to_string(std::distance(_instructions.begin(), _instructions.end())) << "\n";
 		//_instructions.insert(funcIt+funcCnt, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
 		
 
