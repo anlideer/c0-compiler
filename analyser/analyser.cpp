@@ -1111,7 +1111,7 @@ namespace miniplc0 {
 		// debug
 		next = nextToken();
 		unreadToken();
-		std::cout << "RETURNING from expression, now the token is:" << next.value.GetValueString() << "\n";
+		std::cout << "RETURNING from expression, now the token is:" << next.value().GetValueString() << "\n";
 		return {};
 	}
 
