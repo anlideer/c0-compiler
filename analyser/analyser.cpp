@@ -1000,7 +1000,7 @@ namespace miniplc0 {
 	}
 
 	// for local vars add only
-	void Analyser::_add(const Token& tk, string level, std::map<std::make_pair(string, string), int32_t>& mp)
+	void Analyser::_add(const Token& tk, std::string level, std::map<std::make_pair(std::string, std::string), int32_t>& mp)
 	 {
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
@@ -1017,7 +1017,7 @@ namespace miniplc0 {
 	}
 
 
-	void Analyser::addVariable(const Token& tk, string level) {
+	void Analyser::addVariable(const Token& tk, std::string level) {
 		_add(tk, level, _vars);
 	}
 	/*
@@ -1025,12 +1025,12 @@ namespace miniplc0 {
 		_add(tk, _consts);
 	}
 	*/
-	void Analyser::addUninitializedVariable(const Token& tk, string level) {
+	void Analyser::addUninitializedVariable(const Token& tk, std::string level) {
 		_add(tk, level, _uninitialized_vars);
 	}
 
 	// Attention: it's used to track where the variable is
-	void Analyser::addSign(const Token& tk, string level)
+	void Analyser::addSign(const Token& tk, std::string level)
 	{
 		if (tk.GetType() != TokenType::IDENTIFIER)
 			DieAndPrint("only identifier can be added to the table.");
