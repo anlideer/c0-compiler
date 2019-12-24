@@ -547,6 +547,11 @@ namespace miniplc0 {
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidPrint);
 		}
 
+		// debug
+		next = nextToken();
+		unreadToken();
+		std::cout << "RETURNING from printable-list, now the token is:" << next.value().GetValueString() << "\n";
+
 		return {};
 	}
 
@@ -1109,9 +1114,9 @@ namespace miniplc0 {
 		_instructions.emplace_back(Operation::INEG, indexCnt++);
 
 		// debug
-		next = nextToken();
-		unreadToken();
-		std::cout << "RETURNING from expression, now the token is:" << next.value().GetValueString() << "\n";
+		//next = nextToken();
+		//unreadToken();
+		//std::cout << "RETURNING from expression, now the token is:" << next.value().GetValueString() << "\n";
 		return {};
 	}
 
