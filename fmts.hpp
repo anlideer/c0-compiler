@@ -373,9 +373,9 @@ namespace fmt {
 			case miniplc0::FUNCTIONS:
 				return format_to(ctx.out(), "{}", p.GetOperation());
 			case miniplc0::FUNCN:
-				return format_to(ctx.out(), "{}{}", p.GetOperations(), p.GetX());
+				return format_to(ctx.out(), "{}{}", p.GetOperation(), p.GetX());
 			case miniplc0::FUNCINFO:
-				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetNameOperation(), p.GetParamsSize(), p.GetLevel());
+				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetNameIndex(), p.GetParamsSize(), p.GetLevel());
 
 			case miniplc0::LOADA:
 				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetOperation(), p.GetLevel(), p.GetX());
@@ -392,7 +392,7 @@ namespace fmt {
 			case miniplc0::SNEW:
 				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
 			case miniplc0::POP:
-				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperations());
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
 			case miniplc0::DUP:
 				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
 
