@@ -998,7 +998,7 @@ namespace miniplc0 {
 		else if (next.value().GetType() == TokenType::UNSIGNED_INTEGER)
 		{
 			// push it directly
-			_instructions.emplace_back(Operation::IPUSH, indexCnt++, next.value().GetValue());
+			_instructions.emplace_back(Operation::IPUSH, indexCnt++, std::any_cast<int>(next.value().GetValue()));
 		}
 		else if (next.value().GetType() == TokenType::IDENTIFIER)
 		{
