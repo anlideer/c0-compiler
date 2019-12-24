@@ -454,11 +454,11 @@ namespace miniplc0 {
 		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
 		if (isGlobalDeclared(tmpvar.value().GetValueString()))
 		{
-			addGlobalVar(tmpvar.value().GetValueString());
+			addGlobalVar(tmpvar.value());
 		}
 		else if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
 		{
-			addVariable(tmpvar.value().GetValueString(), currentFunc);
+			addVariable(tmpvar.value(), currentFunc);
 		}
 		else
 		{
