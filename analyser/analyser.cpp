@@ -655,7 +655,7 @@ namespace miniplc0 {
 		// <condition>
 		// if condition not satisfied, we need to jump out of the loop
 		// else we continue the loop
-		auto err = analyseCondition();
+		auto err = analyseCondition(false);
 		if (err.has_value())
 			return err;
 		// )
@@ -700,7 +700,7 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidConditionStatement);
 		// <condition>
-		auto err = analyseCondition();
+		auto err = analyseCondition(true);
 		if (err.has_value())
 			return err;
 		// )
@@ -723,7 +723,7 @@ namespace miniplc0 {
 			// for condition satisfied, we also need to jump over "else statement"
 			// so we append a jump, stored in condition_stack2
 			_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
-			condition_stack2.push(std::distance(_instructions.end() - _instructions.begin() - 1));
+			condition_stack2.push(std::distance(_instructions.end() - _instructions.begin()) - 1);
 
 			// deal with the if jump
 			if (condition_stack.empty())
@@ -739,8 +739,8 @@ namespace miniplc0 {
 
 			// statement over, we need to deal with the "jump over else-statement"
 			if (condition_stack2.empty())
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfElse);
-			int tmp_pos = condition_stack2.top();
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfelse);
+			tmp_pos = condition_stack2.top();
 			_instructions[tmp_pos].SetX(indexCnt);
 			condition_stack2.pop();
 		}
@@ -749,7 +749,7 @@ namespace miniplc0 {
 			unreadToken();
 			// deal with the if jump
 			if (condition_stack.empty())
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfElse);
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfelse);
 			int tmp_pos = condition_stack.top();
 			_instructions[tmp_pos].SetX(indexCnt + 1);
 			condition_stack.pop();					
@@ -863,9 +863,9 @@ namespace miniplc0 {
 		}
 
 		if (fromIf)
-			condition_stack.push(std::distance(_instructions.end() - _instructions.begin() - 1));	// this is the unhandled jmp position of all instructions
+			condition_stack.push(std::distance(_instructions.end() - _instructions.begin()) - 1);	// this is the unhandled jmp position of all instructions
 		else
-			loop_stack.push(std::distance(_instructions.end() - _instructions.begin() - 1));
+			loop_stack.push(std::distance(_instructions.end() - _instructions.begin()) - 1);
 
 		return {};
 
