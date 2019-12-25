@@ -727,7 +727,7 @@ namespace miniplc0 {
 
 			// deal with the if jump
 			if (condition_stack.empty())
-				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfElse);
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfelse);
 			int tmp_pos = condition_stack.top();
 			_instructions[tmp_pos].SetX(indexCnt);
 			condition_stack.pop();		
