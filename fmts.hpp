@@ -393,7 +393,7 @@ namespace fmt {
 				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetNameIndex(), p.GetParamsSize(), p.GetLevel());
 
 			case miniplc0::LOADA:
-				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetOperation(), p.GetLevel(), p.GetX());
+				return format_to(ctx.out(), "{} {} {}, {}", p.GetIndex(), p.GetOperation(), p.GetLevel(), p.GetX());
 			case miniplc0::LOADC:
 				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
 			case miniplc0::IPUSH:
