@@ -264,6 +264,7 @@ namespace miniplc0 {
 		// {
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
+		std::cout << "read {\n";
 		// {variable-declaration} 
 		while(true)
 		{
@@ -279,6 +280,7 @@ namespace miniplc0 {
 			if (err.has_value())
 				return err;
 		}
+		std::cout << "finish var-dec\n";
 
 		// <statement-seq>
 		// pre-read and guide into the right entrance
@@ -301,10 +303,13 @@ namespace miniplc0 {
 			}
 		}
 
+		std::cout << "statement-seq end\n";
+
 		// }
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBrace);
+		std::cout << "read }\n";
 
 		return {};
 
