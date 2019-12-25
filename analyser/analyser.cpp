@@ -723,7 +723,7 @@ namespace miniplc0 {
 			// for condition satisfied, we also need to jump over "else statement"
 			// so we append a jump, stored in condition_stack2
 			_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
-			condition_stack2.push(std::distance(_instructions.end() - _instructions.begin()) - 1);
+			condition_stack2.push(std::distance(_instructions.begin(), _instructions.end()) - 1);
 
 			// deal with the if jump
 			if (condition_stack.empty())
@@ -863,9 +863,9 @@ namespace miniplc0 {
 		}
 
 		if (fromIf)
-			condition_stack.push(std::distance(_instructions.end() - _instructions.begin()) - 1);	// this is the unhandled jmp position of all instructions
+			condition_stack.push(std::distance(_instructions.begin(), _instructions.end()) - 1);	// this is the unhandled jmp position of all instructions
 		else
-			loop_stack.push(std::distance(_instructions.end() - _instructions.begin()) - 1);
+			loop_stack.push(std::distance(_instructions.begin(), _instructions.end()) - 1);
 
 		return {};
 
