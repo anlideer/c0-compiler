@@ -129,6 +129,7 @@ namespace miniplc0 {
 			resetLocalMaps();
 			// func-difinition
 			auto err = analyseFunctionDifinition();
+			std::cout << "func end\n";
 			if (err.has_value())
 				return err;
 			levelCnt = 0;
@@ -264,7 +265,6 @@ namespace miniplc0 {
 		// {
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
-		std::cout << "read {\n";
 		// {variable-declaration} 
 		while(true)
 		{
@@ -280,7 +280,6 @@ namespace miniplc0 {
 			if (err.has_value())
 				return err;
 		}
-		std::cout << "finish var-dec\n";
 
 		// <statement-seq>
 		// pre-read and guide into the right entrance
@@ -303,13 +302,11 @@ namespace miniplc0 {
 			}
 		}
 
-		std::cout << "statement-seq end\n";
 
 		// }
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBrace);
-		std::cout << "read }\n";
 
 		return {};
 
@@ -317,7 +314,6 @@ namespace miniplc0 {
 
 	// <statement>
 	std::optional<CompilationError> Analyser::analyseStatement(){
-			std::cout << "enter statement\n";
 			auto next = nextToken();
 			if (!next.has_value())
 			{
@@ -427,7 +423,6 @@ namespace miniplc0 {
 	// <return-statement>
 	// <return-statement> ::= 'return' [<expression>] ';'
 	std::optional<CompilationError> Analyser::analyseReturnStatement(){
-		std::cout << "enter return-statement\n";
 		// return
 		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RETURN)
@@ -442,7 +437,6 @@ namespace miniplc0 {
 		else if (next.value().GetType() == TokenType::PLUS_SIGN || next.value().GetType() == TokenType::MINUS_SIGN || next.value().GetType() == TokenType::LEFT_BRACKET
 			|| next.value().GetType() == TokenType::UNSIGNED_INTEGER || next.value().GetType() == TokenType::IDENTIFIER)
 		{
-			std::cout << "have expression\n";
 			unreadToken();
 			auto err = analyseExpression();
 			if (err.has_value())
@@ -458,7 +452,6 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
-		std::cout << "return return " << next.value().GetValueString() << "\n";
 
 		return {};
 	}
