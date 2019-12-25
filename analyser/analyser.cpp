@@ -312,6 +312,7 @@ namespace miniplc0 {
 
 	// <statement>
 	std::optional<CompilationError> Analyser::analyseStatement(){
+			std::cout << "enter statement\n";
 			auto next = nextToken();
 			if (!next.has_value())
 			{
@@ -421,6 +422,7 @@ namespace miniplc0 {
 	// <return-statement>
 	// <return-statement> ::= 'return' [<expression>] ';'
 	std::optional<CompilationError> Analyser::analyseReturnStatement(){
+		std::cout << "enter return-statement\n";
 		// return
 		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RETURN)
