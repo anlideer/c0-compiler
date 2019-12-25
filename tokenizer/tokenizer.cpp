@@ -90,6 +90,7 @@ namespace miniplc0 {
 					// only 0
 					else if (!miniplc0::isdigit(ch))
 					{
+						unreadLast();
 						current_state = DFAState::UNSIGNED_INTEGER10_STATE;	// 10based
 					}
 					else 
