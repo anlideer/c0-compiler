@@ -129,10 +129,8 @@ namespace miniplc0 {
 			resetLocalMaps();
 			// func-difinition
 			auto err = analyseFunctionDifinition();
-			std::cout << "func end\n";
 			if (err.has_value())
 				return err;
-			std::cout << "func end2\n";
 			levelCnt = 0;
 		}
 
@@ -292,7 +290,6 @@ namespace miniplc0 {
 				&& next.value().GetType() != TokenType::SEMICOLON && next.value().GetType() != TokenType::RETURN))
 			{
 				unreadToken();
-				std::cout << "break statement-seq\n";
 				break;
 			}
 			else
@@ -309,7 +306,6 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBrace);
-		std::cout << "get }\n";
 
 		return {};
 
@@ -593,7 +589,6 @@ namespace miniplc0 {
 		if (next.has_value() && next.value().GetType() == TokenType::RIGHT_BRACKET)
 		{
 			// pass
-			std::cout << ")\n";
 		}
 		// <printable-list>
 		else
@@ -637,11 +632,6 @@ namespace miniplc0 {
 			if (err.has_value())
 				return err;
 		}
-
-		// debug
-		//auto next = nextToken();
-		//unreadToken();
-		//std::cout << "RETURNING from printable-list, now the token is:" << next.value().GetValueString() << "\n";
 
 		return {};
 	}
