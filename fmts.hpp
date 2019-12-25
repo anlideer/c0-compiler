@@ -232,6 +232,9 @@ namespace fmt {
 			case miniplc0::COMMA:
 				name = "Comma";
 				break;
+			case miniplc0::RETURN:
+				name = "Return";
+				break;
 			default:
 				name = "Unknown sign";
 			}
