@@ -132,6 +132,7 @@ namespace miniplc0 {
 			std::cout << "func end\n";
 			if (err.has_value())
 				return err;
+			std::cout << "func end2\n";
 			levelCnt = 0;
 		}
 
