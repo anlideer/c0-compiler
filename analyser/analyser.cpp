@@ -435,6 +435,7 @@ namespace miniplc0 {
 		else if (next.value().GetType() == TokenType::PLUS_SIGN || next.value().GetType() == TokenType::MINUS_SIGN || next.value().GetType() == TokenType::LEFT_BRACKET
 			|| next.value().GetType() == TokenType::UNSIGNED_INTEGER || next.value().GetType() == TokenType::IDENTIFIER)
 		{
+			std::cout << "have expression\n";
 			unreadToken();
 			auto err = analyseExpression();
 			if (err.has_value())
@@ -450,6 +451,7 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		std::cout << "return return " << next.value().GetValueString() << "\n";
 
 		return {};
 	}
