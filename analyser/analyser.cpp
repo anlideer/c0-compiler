@@ -292,6 +292,7 @@ namespace miniplc0 {
 				&& next.value().GetType() != TokenType::SEMICOLON && next.value().GetType() != TokenType::RETURN))
 			{
 				unreadToken();
+				std::cout << "break statement-seq\n";
 				break;
 			}
 			else
