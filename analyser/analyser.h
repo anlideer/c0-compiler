@@ -128,6 +128,7 @@ namespace miniplc0 {
 		// reset
 		void resetOffset();
 		void resetLocalIndex();
+		void resetLocalMaps();
 
 		// to remember function index in .constants
 		void addFunc(std::string, int32_t pos, const TokenType);

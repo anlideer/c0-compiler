@@ -7,8 +7,8 @@ namespace miniplc0 {
 	// in this case, we also need to adjust the implement of nextToken() & unreadToken()
 
 	// some global vars
-	std::queue<std::vector<Instruction>::iterator> jmp_queue;	// store unhandled instructions' index for jump only
-	std::queue<std::vector<Instruction>::iterator> call_queue;	// for call only
+	std::queue<std::vector<Instruction>::iterator> condition_queue;	// store unhandled instructions' index for jump only
+	std::queue<std::vector<Instruction>::iterator> loop_queue;	// for "while" jump
 	int indexCnt = 0;	// for all index count
 	//std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	//std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
@@ -122,7 +122,11 @@ namespace miniplc0 {
 				break;
 			else
 				unreadToken();
+
+			// reset local
 			levelCnt = 1;
+			resetLocalMaps();
+			// func-difinition
 			auto err = analyseFunctionDifinition();
 			if (err.has_value())
 				return err;
@@ -794,17 +798,20 @@ namespace miniplc0 {
 
 	// <parameter-declaration>
 	std::optional<CompilationError> Analyser::analyseParameter(){
+		// we need to add param in map
+		bool isConst = false;
+
 		auto next = nextToken();
 		if (!next.has_value())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		else if (next.value().GetType() == TokenType::CONST)
 		{
 			next = nextToken();
-			// ...
+			isConst = true;
 		}
 		else if (next.value().GetType() == TokenType::INT)
 		{
-			// ...
+			// pass
 		}
 		else
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
@@ -814,7 +821,7 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		else if (next.value().GetType() == TokenType::INT)
 		{
-			// ...
+			// pass
 		}
 		else
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
@@ -823,7 +830,12 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
-		// ...
+
+		// add to map
+		addVariable(next.value(), currentFunc);
+		if (isConst)
+			addConstant(next.value(), currentFunc);
+		addSign(next.value(), currentFunc);
 
 		return {};
 	}
@@ -1243,7 +1255,8 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteFunctionCall);
 
 
-		// TODO: instruction call the func
+		// instruction call the func
+		_instructions.emplace_back(Operation::CALL, indexCnt++, findFunc(func_tmp.value().GetValueString()));
 
 		return {};
 	}
@@ -1257,6 +1270,15 @@ namespace miniplc0 {
 	void Analyser::resetLocalIndex()
 	{
 		_indexCnt = 0;
+	}
+
+	void Analyser::resetLocalMaps()
+	{
+		_indexCnt = 0;
+		_uninitialized_vars.clear();
+		_vars.clear();
+		_consts.clear();
+		_allsigns.clear();
 	}
 
 	std::optional<Token> Analyser::nextToken() 
