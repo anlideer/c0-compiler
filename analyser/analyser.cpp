@@ -309,6 +309,7 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBrace);
+		std::cout << "get }\n";
 
 		return {};
 
