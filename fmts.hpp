@@ -257,17 +257,17 @@ namespace fmt {
 				name = "ILL";
 				break;
 			case miniplc0::CONSTANTS:
-				name = ".constants";
+				name = ".constants:";
 				break;
 			// this is a special one, I only use it to store the name of function
 			case miniplc0::CONSTANT:
 				name = "S";
 				break;
 			case miniplc0::START:
-				name = ".start";
+				name = ".start:";
 				break;
 			case miniplc0::FUNCTIONS:
-				name = ".functions";
+				name = ".functions:";
 				break;
 			case miniplc0::FUNCN:
 				name = ".F";
@@ -388,7 +388,7 @@ namespace fmt {
 			case miniplc0::FUNCTIONS:
 				return format_to(ctx.out(), "{}", p.GetOperation());
 			case miniplc0::FUNCN:
-				return format_to(ctx.out(), "{}{}", p.GetOperation(), p.GetX());
+				return format_to(ctx.out(), "{}{}:", p.GetOperation(), p.GetX());
 			case miniplc0::FUNCINFO:
 				return format_to(ctx.out(), "{} {} {} {}", p.GetIndex(), p.GetNameIndex(), p.GetParamsSize(), p.GetLevel());
 
