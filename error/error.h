@@ -45,6 +45,9 @@ namespace miniplc0 {
 		ErrInvalidStatement,
 		ErrInvalidCondition,
 		ErrVoidCantCalculate,
+		ErrIfelse,
+		ErrLoop,
+		ErrRedeclared,
 		
 
 	};

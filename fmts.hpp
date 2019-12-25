@@ -93,6 +93,15 @@ namespace fmt {
 			case miniplc0::ErrVoidCantCalculate:
 				name = "Function returns void cannot be calculated";
 				break;
+			case miniplc0::ErrIfelse:
+				name = "Invalid If-else (shouldn't have appeared)";
+				break;
+			case miniplc0::ErrLoop:
+				name = "Invalid loop (shouldn't have appeared)";
+				break;
+			case miniplc0::ErrRedeclared:
+				name = "This variable has been declared";
+				break;
 
 			default:
 				name = "Error occurs.";

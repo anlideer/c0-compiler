@@ -97,6 +97,7 @@ namespace miniplc0 {
 		void SetOperation(Operation opr){_opr = opr;}
 		void SetIndex(int32_t index){_index = index;}
 		void SetStr(std::string& str){_str = str;}
+		void SetX(int32_t x){_x = x;}
 	private:
 		// set default value
 		Operation _opr = Operation::ILL;

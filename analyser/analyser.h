@@ -10,7 +10,7 @@
 #include <map>
 #include <cstdint>
 #include <cstddef> // for std::size_t'
-#include <queue>
+#include <stack>
 #include <climits>
 #include <string>
 
@@ -64,7 +64,7 @@ namespace miniplc0 {
 		// <condition-statement>
 		std::optional<CompilationError> analyseConditionStatement();
 		// <condition>
-		std::optional<CompilationError> analyseCondition();
+		std::optional<CompilationError> analyseCondition(bool fromIf);
 		// <statement>
 		std::optional<CompilationError> analyseStatement();
 		// <loop-statement>

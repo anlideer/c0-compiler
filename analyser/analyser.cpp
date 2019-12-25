@@ -3,12 +3,13 @@
 
 namespace miniplc0 {
 
-	// TODO: we can use a queue for temp storage of tokens 
+	// TODO: we can use a stack for temp storage of tokens 
 	// in this case, we also need to adjust the implement of nextToken() & unreadToken()
 
 	// some global vars
-	std::queue<std::vector<Instruction>::iterator> condition_queue;	// store unhandled instructions' index for jump only
-	std::queue<std::vector<Instruction>::iterator> loop_queue;	// for "while" jump
+	std::stack<int> condition_stack;	// store unhandled instructions' index for jump only
+	std::stack<int> condition_stack2;
+	std::stack<int> loop_stack;	// for "while" jump
 	int indexCnt = 0;	// for all index count
 	//std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	//std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
@@ -463,15 +464,16 @@ namespace miniplc0 {
 		auto tmpvar = next;
 		// load it in advance
 		// instruction
-		if (isGlobalDeclared(tmpvar.value().GetValueString()))
-		{
-			int offset_tmp = getGlobalIndex(tmpvar.value().GetValueString());
-			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
-		}
-		else if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
+		// !!!notice that local vars have higher pirority than global vars 
+		if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
 		{
 			int offset_tmp = getStackIndex(tmpvar.value().GetValueString(), currentFunc);
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+		}
+		else if (isGlobalDeclared(tmpvar.value().GetValueString()))
+		{
+			int offset_tmp = getGlobalIndex(tmpvar.value().GetValueString());
+			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
 		}
 		else
 		{
@@ -489,13 +491,14 @@ namespace miniplc0 {
 		// after it, add it to our map
 		// instruction: store it 
 		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
-		if (isGlobalDeclared(tmpvar.value().GetValueString()))
-		{
-			addGlobalVar(tmpvar.value());
-		}
-		else if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
+
+		if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
 		{
 			addVariable(tmpvar.value(), currentFunc);
+		}
+		else if (isGlobalDeclared(tmpvar.value().GetValueString()))
+		{
+			addGlobalVar(tmpvar.value());
 		}
 		else
 		{
@@ -528,15 +531,16 @@ namespace miniplc0 {
 
 		// load var first
 		// declared? 
-		if (isGlobalDeclared(next.value().GetValueString()))
-		{	
-			int offset_tmp = getGlobalIndex(next.value().GetValueString());
-			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
-		}
-		else if (isDeclared(next.value().GetValueString(), currentFunc))
+
+		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
 			int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+		}
+		else if (isGlobalDeclared(next.value().GetValueString()))
+		{	
+			int offset_tmp = getGlobalIndex(next.value().GetValueString());
+			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
 		}
 		else
 		{
@@ -649,6 +653,8 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
 		// <condition>
+		// if condition not satisfied, we need to jump out of the loop
+		// else we continue the loop
 		auto err = analyseCondition();
 		if (err.has_value())
 			return err;
@@ -661,6 +667,18 @@ namespace miniplc0 {
 		err = analyseStatement();
 		if (err.has_value())
 			return err;
+
+		// statement over, handling the previous jump and jump back
+		if (loop_stack.empty())
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLoop);
+		int tmp_pos = loop_stack.top();	
+		int index_of_condition_ins = _instructions[tmp_pos].GetIndex();	// for another jump's use
+		_instructions[tmp_pos].SetX(indexCnt+1);	// for we still have one jump ins here
+		loop_stack.pop();
+		// jump back
+		_instructions.emplace_back(Operation::JMP, indexCnt++, index_of_condition_ins);
+
+
 
 	}
 
@@ -690,23 +708,51 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidConditionStatement);
 
+		// if the condition is satisfied, we can process this statement
 		// <statement>
 		err = analyseStatement();
 		if (err.has_value())
 			return err;
 
+
+
 		// ['else' <statement>]
 		next = nextToken();
 		if (next.has_value() && next.value().GetType() == TokenType::ELSE)
 		{
+			// for condition satisfied, we also need to jump over "else statement"
+			// so we append a jump, stored in condition_stack2
+			_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+			condition_stack2.push(std::distance(_instructions.end() - _instructions.begin() - 1));
+
+			// deal with the if jump
+			if (condition_stack.empty())
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfElse);
+			int tmp_pos = condition_stack.top();
+			_instructions[tmp_pos].SetX(indexCnt);
+			condition_stack.pop();		
+
 			// <statement>
 			err = analyseStatement();
 			if (err.has_value())
 				return err;
+
+			// statement over, we need to deal with the "jump over else-statement"
+			if (condition_stack2.empty())
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfElse);
+			int tmp_pos = condition_stack2.top();
+			_instructions[tmp_pos].SetX(indexCnt);
+			condition_stack2.pop();
 		}
 		else
 		{
 			unreadToken();
+			// deal with the if jump
+			if (condition_stack.empty())
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfElse);
+			int tmp_pos = condition_stack.top();
+			_instructions[tmp_pos].SetX(indexCnt + 1);
+			condition_stack.pop();					
 		}
 
 		return {};
@@ -715,46 +761,63 @@ namespace miniplc0 {
 	}
 
 	// <condition> ::= <expression>[<relational-operator><expression>] 
-	std::optional<CompilationError> Analyser::analyseCondition(){
+	std::optional<CompilationError> Analyser::analyseCondition(bool fromIf)	// fromIf: true - calling from condition-statement, false - calling from loop-statement
+	{
+
 		auto err = analyseExpression();
 		if (err.has_value())
 			return err;
+		// now the stack has already had the first expression 
+
 		// <realational-operator>
 		auto next = nextToken();
 		bool flag = true;
+		int sign_type = 1;	
 		if (!next.has_value())
 		{
 			unreadToken();
 			flag = false;
+
+			sign_type = 1;
 		}
+		// 0
 		else if (next.value().GetType() == TokenType::EQUAL_SIGN)
 		{
-			// ...
+			sign_type = 0;
 		}
+		// 1
 		else if (next.value().GetType() == TokenType::NOTEQUAL_SIGN)
 		{
-			// ...
+			sign_type = 1;
 		}
+		// 2
 		else if (next.value().GetType() == TokenType::BIGGER_SIGN)
 		{
-			// ...
+			sign_type = 2;
 		}
+		// 3
 		else if (next.value().GetType() == TokenType::SMALLER_SIGN)
 		{
-			// ... 
+			sign_type = 3;
 		}
+		// 4
 		else if (next.value().GetType() == TokenType::NOTBIGGER_SIGN)
 		{
-			// ...
+			sign_type = 4;
 		}
+		// 5
 		else if (next.value().GetType() == TokenType::NOTSMALLER_SIGN)
 		{
-			// ...
+			sign_type = 5;
 		}
+		// no sign
+		// if (i) is if (i != 0) ?
 		else
 		{
 			unreadToken();
 			flag = false;
+
+			sign_type = 1;
 		}
 
 		// <expression>
@@ -763,7 +826,46 @@ namespace miniplc0 {
 			auto err = analyseExpression();
 			if (err.has_value())
 				return err;
+			// first - second
+			_instructions.emplace_back(Operation::ISUB, indexCnt++);
 		}
+
+		// now in both cases, we already push the right value into the stack
+		// just need to see which instruction we should use.
+		// (I really quite dislike to use switch-case...)
+
+		// ! we need to notice that all operation needs to be reversed
+		// for it's who do not fit the condition jumps away
+		switch(sign_type)
+		{
+			case 0:
+				_instructions.emplace_back(Operation::JNE, indexCnt++, 0);	// 0 is just for taking the place
+				break;
+			case 1:
+				_instructions.emplace_back(Operation::JE, indexCnt++, 0);
+				break;
+			case 2:
+				_instructions.emplace_back(Operation::JLE, indexCnt++, 0);
+				break;
+			case 3:
+				_instructions.emplace_back(Operation::JGE, indexCnt++, 0);
+				break;
+			case 4:
+				_instructions.emplace_back(Operation::JG, indexCnt++, 0);
+				break;
+			case 5:
+				_instructions.emplace_back(Operation::JL, indexCnt++, 0);
+				break;
+
+			default:
+				_instructions.emplace_back(Operation::ILL, indexCnt++);	// error occurs
+		
+		}
+
+		if (fromIf)
+			condition_stack.push(std::distance(_instructions.end() - _instructions.begin() - 1));	// this is the unhandled jmp position of all instructions
+		else
+			loop_stack.push(std::distance(_instructions.end() - _instructions.begin() - 1));
 
 		return {};
 
@@ -899,8 +1001,23 @@ namespace miniplc0 {
 				break;
 			}
 
-			// TODO: see if it's already defined?
-			// ...
+			// see if it's already defined?
+			if (handleGlobal)
+			{
+				if (isGlobalDeclared(next.value().GetValueString()))
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrRedeclared);
+				}
+			}
+			else
+			{
+				// even if there is already a global var with this name, we can always declare a local variable with the same name
+				// see more on https://github.com/anlideer/c0-compiler/issues/7
+				if (isDeclared(next.value().GetValueString(), currentFunc))
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrRedeclared);
+				}
+			}
 			// store identifier
 			auto tmpvar = next;
 			// global
@@ -924,7 +1041,18 @@ namespace miniplc0 {
 			// local
 			else
 			{
-				// ...
+				if (isConst)
+				{
+					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);
+					addConstant(next.value(), currentFunc);
+					addSign(next.value(), currentFunc);
+				}
+				else
+				{
+					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);
+					addUninitializedVariable(next.value(), currentFunc);
+					addSign(next.value(), currentFunc);
+				}
 			}
 
 			next = nextToken();
@@ -1134,22 +1262,9 @@ namespace miniplc0 {
 				unreadToken();
 				// load identifier to the top of the stack
 				// isdeclared?
-				// global
-				if (isGlobalDeclared(next.value().GetValueString()))
-				{
-					if (!isGlobalInitialized(next.value().GetValueString()))
-					{
-						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
-					}
-					else
-					{
-						// load
-						int offset_tmp = getGlobalIndex(next.value().GetValueString());
-						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
-					}
-				}
+
 				// local
-				else if (isDeclared(next.value().GetValueString(), currentFunc))
+				if (isDeclared(next.value().GetValueString(), currentFunc))
 				{
 					if (!isInitializedVariable(next.value().GetValueString(), currentFunc))
 					{
@@ -1162,6 +1277,20 @@ namespace miniplc0 {
 						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
 					}
 				}
+				// global
+				else if (isGlobalDeclared(next.value().GetValueString()))
+				{
+					if (!isGlobalInitialized(next.value().GetValueString()))
+					{
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotInitialized);
+					}
+					else
+					{
+						// load
+						int offset_tmp = getGlobalIndex(next.value().GetValueString());
+						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+					}
+				}				
 				else
 				{
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNotDeclared);
@@ -1205,10 +1334,7 @@ namespace miniplc0 {
 		if (needNeg)
 			_instructions.emplace_back(Operation::INEG, indexCnt++);
 
-		// debug
-		//next = nextToken();
-		//unreadToken();
-		//std::cout << "RETURNING from expression, now the token is:" << next.value().GetValueString() << "\n";
+
 		return {};
 	}
 
