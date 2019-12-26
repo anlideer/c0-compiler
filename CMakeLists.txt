@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(miniplc0)
+project(cc0)
 
 add_subdirectory(3rd_party/argparse)
 add_subdirectory(3rd_party/fmt)
