@@ -83,7 +83,7 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	}
 	std::ifstream* inputtmp2;
 	inputtmp2 = &inputtmp;
-	assemble_text(inputtmp2, *out);
+	assemble_text(inputtmp2, dynamic_cast<std::ofstream*>(out));
 }
 
 
