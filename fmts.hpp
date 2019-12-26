@@ -108,6 +108,9 @@ namespace fmt {
 			case miniplc0::ErrConstantChange:
 				name = "Constant can't be changed";
 				break;
+			case miniplc0::ErrInvalidReturn:
+				name = "Invalid return";
+				break;
 
 			default:
 				name = "Error occurs.";
