@@ -446,6 +446,7 @@ namespace miniplc0 {
 	// <return-statement>
 	// <return-statement> ::= 'return' [<expression>] ';'
 	std::optional<CompilationError> Analyser::analyseReturnStatement(){
+		returned = true;
 		// return
 		auto next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::RETURN)
