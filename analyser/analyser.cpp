@@ -545,7 +545,7 @@ namespace miniplc0 {
 		{	
 			int offset_tmp = getGlobalIndex(next.value().GetValueString());
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
-			addVariable(next.value());
+			addGlobalVar(next.value());
 		}
 		else
 		{
