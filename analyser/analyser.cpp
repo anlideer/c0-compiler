@@ -518,7 +518,6 @@ namespace miniplc0 {
     	'scan' '(' <identifier> ')' ';'
 	*/
 	 std::optional<CompilationError> Analyser::analyseScanStatement(){
-	 	std::cout << "scan\n";
 	 	auto next = nextToken();
 	 	// scan
 	 	if (!next.has_value() || next.value().GetType() != TokenType::SCAN)
@@ -534,7 +533,6 @@ namespace miniplc0 {
 		
 		// load var first
 		// declared? 
-		std::cout << "add to map\n";
 		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
 			int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
@@ -580,7 +578,6 @@ namespace miniplc0 {
     	<expression> 
 	*/
 	std::optional<CompilationError> Analyser::analysePrintStatement(){
-		std::cout << "print\n";
 		auto next = nextToken();
 		// print
 		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
