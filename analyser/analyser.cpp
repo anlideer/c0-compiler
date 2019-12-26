@@ -776,7 +776,7 @@ namespace miniplc0 {
 			if (condition_stack.empty())
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIfelse);
 			int tmp_pos = condition_stack.top();
-			_instructions[tmp_pos].SetX(indexCnt + 1);
+			_instructions[tmp_pos].SetX(indexCnt);
 			condition_stack.pop();					
 		}
 
