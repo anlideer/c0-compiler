@@ -20,6 +20,7 @@ namespace miniplc0 {
 		// memory operations (now we only have a/i without char&double). For convenience, we only use int.
 		LOADA, 
 		LOADC,
+		BIPUSH,
 		IPUSH,
 		ILOAD,
 		ISTORE,
@@ -59,7 +60,7 @@ namespace miniplc0 {
 		CPRINT,
 		ISCAN,
 		// SPRINT,
-		// PRINTL,
+		PRINTL,
 
 	};
 	

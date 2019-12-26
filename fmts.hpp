@@ -410,6 +410,8 @@ namespace fmt {
 				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
 			case miniplc0::IPUSH:
 				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+			case miniplc0::BIPUSH:
+				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
 			case miniplc0::ILOAD:
 				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
 			case miniplc0::ISTORE:
@@ -447,6 +449,7 @@ namespace fmt {
 			case miniplc0::IPRINT:
 			case miniplc0::CPRINT:
 			case miniplc0::ISCAN:
+			case miniplc0::PRINTL:
 				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
 
 

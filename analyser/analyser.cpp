@@ -657,6 +657,8 @@ namespace miniplc0 {
 			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 		}
+		// \n
+		_instructions.emplace_back(Operation::PRINTL, indexCnt++);
 		// ;
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
@@ -688,6 +690,9 @@ namespace miniplc0 {
 			if (err.has_value())
 				return err;
 			_instructions.emplace_back(Operation::IPRINT, indexCnt++);
+			// space
+			_instructions.emplace_back(Operation::BIPUSH, indexCnt++, 32);
+			_instructions.emplace_back(Operation::CPRINT, indexCnt++);
 		}
 
 		return {};
