@@ -563,6 +563,7 @@ namespace miniplc0 {
 		_instructions.emplace_back(Operation::ISCAN, indexCnt++);
 		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
 		// add to map
+		std::cout<<"add to map\n";
 		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
 			addVariable(ident_tmp.value(), currentFunc);
@@ -585,6 +586,7 @@ namespace miniplc0 {
     	<expression> 
 	*/
 	std::optional<CompilationError> Analyser::analysePrintStatement(){
+		std::cout << "print\n";
 		auto next = nextToken();
 		// print
 		if (!next.has_value() || next.value().GetType() != TokenType::PRINT)
