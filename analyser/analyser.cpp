@@ -636,6 +636,7 @@ namespace miniplc0 {
 		auto err = analyseExpression();
 		if (err.has_value())
 			return err;
+		_instructions.emplace_back(Operation::IPRINT, indexCnt++);
 
 		while(true)
 		{
