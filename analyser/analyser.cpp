@@ -565,11 +565,11 @@ namespace miniplc0 {
 		// add to map
 		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
-			addVariable(ident_tmp, currentFunc);
+			addVariable(ident_tmp.value(), currentFunc);
 		}
 		else if (isGlobalDeclared(next.value().GetValueString()))
 		{	
-			addGlobalVar(ident_tmp);
+			addGlobalVar(ident_tmp.value());
 		}		
 		return {};
 
