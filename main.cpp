@@ -68,9 +68,11 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 		fmt::print(stderr, "Fail to open tmp.s0 for reading.\n");
 			exit(2);		
 	}
+	std::ifstream* inputtmp2;
+	inputtmp2 = &inputtmp;
 
     try {
-        File f = File::parse_file_text(inputtmp);
+        File f = File::parse_file_text(*inputtmp2);
         // f.output_text(std::cout);
         f.output_binary(*out);
     }
