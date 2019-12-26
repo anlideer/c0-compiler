@@ -50,6 +50,18 @@ void Analyse(std::istream& input, std::ostream& output){
 	return;
 }
 
+void assemble_text(std::ifstream* in, std::ofstream* out) {
+    try {
+        File f = File::parse_file_text(*in);
+        // f.output_text(std::cout);
+        f.output_binary(*out);
+
+    }
+    catch (const std::exception& e) {
+        println(std::cerr, e.what());
+    }
+}
+
 void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	std::ofstream tmpStream;
 	tmpStream.open("tmp.s0", std::ios::out);
@@ -74,17 +86,6 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	assemble_text(*inputtmp2, *out);
 }
 
-void assemble_text(std::ifstream* in, std::ofstream* out) {
-    try {
-        File f = File::parse_file_text(*in);
-        // f.output_text(std::cout);
-        f.output_binary(*out);
-
-    }
-    catch (const std::exception& e) {
-        println(std::cerr, e.what());
-    }
-}
 
 int main(int argc, char** argv) {
 	argparse::ArgumentParser program("miniplc0");
