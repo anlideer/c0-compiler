@@ -86,7 +86,6 @@ namespace miniplc0 {
 					if (ch == 'x')
 					{
 						current_state = DFAState::UNSIGNED_INTEGER16_STATE;	// hex
-						ss << ch;
 					}
 					// only 0
 					else if (!miniplc0::isdigit(ch))
@@ -278,7 +277,6 @@ namespace miniplc0 {
 					unreadLast();
 					try
 					{
-						std::cout << "hex str: " << ss.str() << "\n";
 						int32_t tmp = std::stoi(ss.str(), 0, 16);
 						return std::make_pair(std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, tmp, pos, currentPos()), std::optional<CompilationError>());
 					}
