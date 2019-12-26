@@ -51,6 +51,7 @@ namespace miniplc0 {
 		ErrInvalidNum,
 		ErrConstantChange,
 		ErrInvalidReturn,
+		ErrNoReturn,
 
 	};
 

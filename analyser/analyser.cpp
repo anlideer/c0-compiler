@@ -11,6 +11,7 @@ namespace miniplc0 {
 	std::stack<int> condition_stack2;
 	std::stack<int> loop_stack;	// for "while" jump
 	int indexCnt = 0;	// for all index count
+	bool returned = false;
 	//std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
 	//std::vector<Instruction>::iterator constIt;	// .constants: ... end pos
 	int funcCnt = 0;
@@ -247,11 +248,16 @@ namespace miniplc0 {
 		// then we enter the "difinition" of this function
 		_instructions.emplace_back(Operation::FUNCN, 0, funcCnt);	// we don't need index here, so filling any value is ok
 		funcCnt++;
+
+		returned = false;
 		// <compound-statement>
 		auto err = analyseCompoundStatement();
 		if (err.has_value())
 			return err;
-
+		if (returned == false && getFuncType(currentFunc) == TokenType::INT)
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoReturn);
+		}
 
 		// update func name
 		currentFunc = "";

@@ -111,6 +111,9 @@ namespace fmt {
 			case miniplc0::ErrInvalidReturn:
 				name = "Invalid return";
 				break;
+			case miniplc0::ErrNoReturn:
+				name = "Except return statement";
+				break;
 
 			default:
 				name = "Error occurs.";
