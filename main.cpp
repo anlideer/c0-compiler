@@ -75,7 +75,7 @@ void AnalyseToBinary(std::istream& input, std::ostream& output) {
     try {
         File f = File::parse_file_text(*inputtmp2);
         // f.output_text(std::cout);
-        f.output_binary(*out);
+        f.output_binary(*output);
     }
     catch (const std::exception& e) {
         println(std::cerr, e.what());
