@@ -1114,6 +1114,16 @@ namespace miniplc0 {
 					addVariable(tmpvar.value(), currentFunc);
 				}
 
+				auto next = nextToken();
+				if (next.has_value() && next.value().GetType() == TokenType::COMMA)
+				{
+					continue;
+				}
+				else
+				{
+					unreadToken();
+				}
+
 			}
 			else
 			{
