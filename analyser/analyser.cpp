@@ -240,6 +240,7 @@ namespace miniplc0 {
 		
 		_instructions.insert(_instructions.begin()+funcPos, Instruction(Operation::FUNCINFO, funcCnt, 0, funcCnt, param_size_tmp, 1));
 		funcPos++;
+		param_size_tmp = 0;
 		
 
 		// then we enter the "difinition" of this function
