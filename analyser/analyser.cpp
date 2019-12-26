@@ -518,6 +518,7 @@ namespace miniplc0 {
     	'scan' '(' <identifier> ')' ';'
 	*/
 	 std::optional<CompilationError> Analyser::analyseScanStatement(){
+	 	std::cout << "scan\n";
 	 	auto next = nextToken();
 	 	// scan
 	 	if (!next.has_value() || next.value().GetType() != TokenType::SCAN)
@@ -530,19 +531,21 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
-		auto ident_tmp = next;
+		
 		// load var first
 		// declared? 
-
+		std::cout << "add to map\n";
 		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
 			int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+			addVariable(next.value(), currentFunc);
 		}
 		else if (isGlobalDeclared(next.value().GetValueString()))
 		{	
 			int offset_tmp = getGlobalIndex(next.value().GetValueString());
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+			addVariable(next.value());
 		}
 		else
 		{
@@ -562,17 +565,7 @@ namespace miniplc0 {
 		// iscan and store
 		_instructions.emplace_back(Operation::ISCAN, indexCnt++);
 		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
-		// add to map
-		std::cout<<"add to map\n";
-		std::cout.flush();
-		if (isDeclared(next.value().GetValueString(), currentFunc))
-		{
-			addVariable(ident_tmp.value(), currentFunc);
-		}
-		else if (isGlobalDeclared(next.value().GetValueString()))
-		{	
-			addGlobalVar(ident_tmp.value());
-		}		
+	
 		return {};
 
 	 }
