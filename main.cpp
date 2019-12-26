@@ -59,6 +59,7 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	}	
 	std::ostream* tmpStream2 = &tmpStream;
 	Analyse(input, *tmpStream2);
+	tmpStream.flush();
 
 
 	std::ifstream inputtmp;
@@ -70,11 +71,15 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	}
 	std::ifstream* inputtmp2;
 	inputtmp2 = &inputtmp;
+	assemble_text(*inputtmp2, *out);
+}
 
+void assemble_text(std::ifstream* in, std::ofstream* out) {
     try {
-        File f = File::parse_file_text(dynamic_cast<std::ofstream*>(inputtmp2));
+        File f = File::parse_file_text(*in);
         // f.output_text(std::cout);
         f.output_binary(*out);
+
     }
     catch (const std::exception& e) {
         println(std::cerr, e.what());
