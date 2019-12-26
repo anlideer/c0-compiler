@@ -102,6 +102,9 @@ namespace fmt {
 			case miniplc0::ErrRedeclared:
 				name = "This variable has been declared";
 				break;
+			case miniplc0::ErrInvalidNum:
+				name = "Invalid hex number";
+				break;
 
 			default:
 				name = "Error occurs.";

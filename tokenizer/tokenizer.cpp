@@ -78,7 +78,6 @@ namespace miniplc0 {
 				// I directly judge if it is 10-based or 16-based integer right here... don't know if it's ok
 				else if (ch == '0')
 				{
-					std::cout << "encounter 0\n";
 					ss << ch;
 					current_char = nextChar();
 					if (!current_char.has_value())
@@ -261,10 +260,16 @@ namespace miniplc0 {
 				{
 					ss << current_char.value();
 				}
-				// 如果读到的是字母，then error
+				// 如果读到的是字母except abcdef，then error
 				else if (miniplc0::isalpha(current_char.value()))
 				{
-					return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidIdentifier));
+					if (current_char.value() == 'a' || current_char.value() == 'b' || current_char.value() == 'c' || current_char.value() == 'd'
+						|| current_char.value() == 'e' || current_char.value() == 'f')
+					{
+						ss << current_char.value();
+					}
+					else
+						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidNum));
 				}
 				// 如果读到的字符不是上述情况之一，则回退读到的字符，并解析已经读到的字符串为整数
 				//     解析成功则返回无符号整数类型的token，否则返回编译错误
