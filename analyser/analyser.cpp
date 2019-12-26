@@ -1270,6 +1270,7 @@ namespace miniplc0 {
 						// load
 						int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
 						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+						_instructions.emplace_back(Operation::ILOAD, indexCnt++);
 					}
 				}
 				// global
@@ -1284,6 +1285,7 @@ namespace miniplc0 {
 						// load
 						int offset_tmp = getGlobalIndex(next.value().GetValueString());
 						_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+						_instructions.emplace_back(Operation::ILOAD, indexCnt++);
 					}
 				}				
 				else

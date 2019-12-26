@@ -399,7 +399,7 @@ namespace fmt {
 			case miniplc0::IPUSH:
 				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
 			case miniplc0::ILOAD:
-				return format_to(ctx.out(), "{} {} {}", p.GetIndex(), p.GetOperation(), p.GetX());
+				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
 			case miniplc0::ISTORE:
 				return format_to(ctx.out(), "{} {}", p.GetIndex(), p.GetOperation());
 			case miniplc0::NEW:
