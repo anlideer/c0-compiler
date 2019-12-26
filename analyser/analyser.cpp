@@ -111,6 +111,7 @@ namespace miniplc0 {
 		}
 
 
+
 		handleGlobal = false;
 		_instructions.emplace_back(Operation::FUNCTIONS);	// .functions:
 		funcPos = std::distance(_instructions.begin(), _instructions.end());	// need to be upadted when appending new func or constant (actually they are done together, so +2 each func)
@@ -691,7 +692,7 @@ namespace miniplc0 {
 		_instructions.emplace_back(Operation::JMP, indexCnt++, index_of_condition_ins);
 
 
-
+		return {};
 	}
 
 
