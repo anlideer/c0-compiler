@@ -1125,7 +1125,7 @@ namespace miniplc0 {
 				}
 				else
 				{
-					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDConstantNeedValue);
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrConstantNeedValue);
 				}
 			}
 
