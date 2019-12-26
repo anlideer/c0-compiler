@@ -5,6 +5,7 @@ project(cc0)
 add_subdirectory(3rd_party/argparse)
 add_subdirectory(3rd_party/fmt)
 
+
 set(PROJECT_EXE ${PROJECT_NAME})
 set(PROJECT_LIB "${PROJECT_NAME}_lib")
 
@@ -17,6 +18,23 @@ set(lib_src
 	analyser/analyser.h
 	analyser/analyser.cpp
 	instruction/instruction.h
+
+	util/print.hpp
+    util/tuple_visit.hpp
+    util/util.hpp
+
+    type.h
+    opcode.h
+    instruction.h
+    constant.h
+    function.h
+    exception.h
+
+    file.h
+    file.cpp
+
+    vm.h
+    vm.cpp
 )
 
 set(main_src
