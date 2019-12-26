@@ -72,7 +72,7 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	inputtmp2 = &inputtmp;
 
     try {
-        File f = File::parse_file_text(*inputtmp2);
+        File f = File::parse_file_text(dynamic_cast<std::ofstream*>(inputtmp2));
         // f.output_text(std::cout);
         f.output_binary(*out);
     }
