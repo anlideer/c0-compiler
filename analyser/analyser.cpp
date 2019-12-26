@@ -668,6 +668,7 @@ namespace miniplc0 {
 		// <condition>
 		// if condition not satisfied, we need to jump out of the loop
 		// else we continue the loop
+		int conditionIndex = indexCnt;
 		auto err = analyseCondition(false);
 		if (err.has_value())
 			return err;
@@ -688,8 +689,8 @@ namespace miniplc0 {
 		int index_of_condition_ins = _instructions[tmp_pos].GetIndex();	// for another jump's use
 		_instructions[tmp_pos].SetX(indexCnt+1);	// for we still have one jump ins here
 		loop_stack.pop();
-		// jump back
-		_instructions.emplace_back(Operation::JMP, indexCnt++, index_of_condition_ins);
+		// jump back to condition calculate
+		_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
 
 
 		return {};
