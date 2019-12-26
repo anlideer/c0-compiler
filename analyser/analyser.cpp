@@ -675,6 +675,9 @@ namespace miniplc0 {
 		if (err.has_value())
 			return err;
 		_instructions.emplace_back(Operation::IPRINT, indexCnt++);
+		// space
+		_instructions.emplace_back(Operation::BIPUSH, indexCnt++, 32);
+		_instructions.emplace_back(Operation::CPRINT, indexCnt++);
 
 		while(true)
 		{
