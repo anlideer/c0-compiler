@@ -5,8 +5,19 @@
 #include "analyser/analyser.h"
 #include "fmts.hpp"
 
+
+  
+#include "./vm.h"
+#include "./file.h"
+#include "./exception.h"
+#include "./util/print.hpp"
+
+
 #include <iostream>
 #include <fstream>
+#include <memory>
+#include <string>
+#include <exception>
 
 std::vector<miniplc0::Token> _tokenize(std::istream& input) {
 	miniplc0::Tokenizer tkz(input);
@@ -37,6 +48,38 @@ void Analyse(std::istream& input, std::ostream& output){
 	for (auto& it : v)
 		output << fmt::format("{}\n", it);
 	return;
+}
+
+void AnalyseToBinary(std::istream& input, std::ostream& output) {
+	std::ofstream tmpStream;
+	tmpStream.open("tmp.s0", std::ios::out);
+	if (!tmpStream) {
+		fmt::print(stderr, "Fail to open tmp.s0 for writing.\n");
+			exit(2);
+	}	
+	std::ostream* tmpStream2 = &tmpStream;
+	Analyse(*input, *output);
+
+
+	std::istream* inputtmp2;
+	std::ifstream inputtmp;
+	inputtmp.open("tmp.s0", std::ios::in);
+	if (!inputtmp)
+	{
+		fmt::print(stderr, "Fail to open tmp.s0 for reading.\n");
+			exit(2);		
+	}
+	inputtmp2 = &inputtmp;
+
+
+    try {
+        File f = File::parse_file_text(*inputtmp2);
+        // f.output_text(std::cout);
+        f.output_binary(*out);
+    }
+    catch (const std::exception& e) {
+        println(std::cerr, e.what());
+    }
 }
 
 int main(int argc, char** argv) {
