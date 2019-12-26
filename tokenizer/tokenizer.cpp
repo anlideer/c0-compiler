@@ -78,6 +78,7 @@ namespace miniplc0 {
 				// I directly judge if it is 10-based or 16-based integer right here... don't know if it's ok
 				else if (ch == '0')
 				{
+					std::cout << "encounter 0\n";
 					ss << ch;
 					current_char = nextChar();
 					if (!current_char.has_value())
@@ -86,6 +87,7 @@ namespace miniplc0 {
 					if (ch == 'x')
 					{
 						current_state = DFAState::UNSIGNED_INTEGER16_STATE;	// hex
+						ss << ch;
 					}
 					// only 0
 					else if (!miniplc0::isdigit(ch))
