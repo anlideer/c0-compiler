@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
 		.default_value(false)
 		.implicit_value(true)
 		.help("perform syntactic analysis(in the form of text) for the input file to the output file.");
-	program.add_argument("-h")
+	program.add_argument("-c")
 		.default_value(false)
 		.implicit_value(true)
 		.help("perform syntactc analysis and output is .o0");
@@ -145,7 +145,7 @@ int main(int argc, char** argv) {
 	else if (program["-s"] == true) {
 		Analyse(*input, *output);
 	}
-	else if (program["-h"] == true)
+	else if (program["-c"] == true)
 	{
 		AnalyseToBinary(*input, dynamic_cast<std::ofstream*>(output));
 	}
