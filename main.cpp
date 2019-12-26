@@ -58,7 +58,7 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 			exit(2);
 	}	
 	std::ostream* tmpStream2 = &tmpStream;
-	Analyse(input, output);
+	Analyse(input, *tmpStream2);
 
 
 	std::ifstream inputtmp;
@@ -70,9 +70,9 @@ void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	}
 
     try {
-        File f = File::parse_file_text(*inputtmp);
+        File f = File::parse_file_text(inputtmp);
         // f.output_text(std::cout);
-        f.output_binary(out);
+        f.output_binary(*out);
     }
     catch (const std::exception& e) {
         println(std::cerr, e.what());
@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
 	}
 	else if (program["-h"] == true)
 	{
-		AnalyseToBinary(*input, output);
+		AnalyseToBinary(*input, dynamic_cast<std::ofstream*>(output));
 	}
 	else {
 		fmt::print(stderr, "You must choose tokenization or syntactic analysis.");
