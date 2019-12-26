@@ -551,12 +551,20 @@ namespace miniplc0 {
 		// declared? 
 		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
+			if (isConstant(next.value().GetValueString(), currentFunc))
+			{
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrConstantChange);
+			}
 			int offset_tmp = getStackIndex(next.value().GetValueString(), currentFunc);
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
 			addVariable(next.value(), currentFunc);
 		}
 		else if (isGlobalDeclared(next.value().GetValueString()))
 		{	
+			if (isGlobalConstant(next.value().GetValueString()))
+			{
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrConstantChange);
+			}
 			int offset_tmp = getGlobalIndex(next.value().GetValueString());
 			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
 			addGlobalVar(next.value());
