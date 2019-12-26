@@ -271,16 +271,31 @@ namespace miniplc0 {
 		while(true)
 		{
 			next = nextToken();
-			if (!next.has_value() || (next.value().GetType() != TokenType::CONST && next.value().GetType() != TokenType::INT))
+			if (!next.has_value())
+			{
+				unreadToken();
+				break;
+			}
+			else if (next.value().GetType() == TokenType::CONST)
+			{
+				unreadToken();
+				auto err = analyseConstantDeclaration();
+				if (err.has_value())
+					return err;
+			}
+			else if (next.value().GetType() == TokenType::INT)
+			{
+				unreadToken();
+				auto err = analyseVariableDeclaration();
+				if (err.has_value())
+					return err;
+			}
+			else
 			{
 				unreadToken();
 				break;
 			}
 
-			unreadToken();
-			auto err = analyseVariableDeclaration();
-			if (err.has_value())
-				return err;
 		}
 
 		// <statement-seq>
@@ -433,12 +448,16 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value())
 		{
+			if (getFuncType(currentFunc) == TokenType::INT)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidReturn);
 			unreadToken();
 			_instructions.emplace_back(Operation::RET, indexCnt++);
 		}
 		else if (next.value().GetType() == TokenType::PLUS_SIGN || next.value().GetType() == TokenType::MINUS_SIGN || next.value().GetType() == TokenType::LEFT_BRACKET
 			|| next.value().GetType() == TokenType::UNSIGNED_INTEGER || next.value().GetType() == TokenType::IDENTIFIER)
 		{
+			if (getFuncType(currentFunc) == TokenType::VOID)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidReturn);
 			unreadToken();
 			auto err = analyseExpression();
 			if (err.has_value())
@@ -447,6 +466,8 @@ namespace miniplc0 {
 		}
 		else
 		{
+			if (getFuncType(currentFunc) == TokenType::INT)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidReturn);
 			unreadToken();
 			_instructions.emplace_back(Operation::RET, indexCnt++);
 		}
