@@ -532,7 +532,7 @@ namespace miniplc0 {
 			// ,
 			case COMMA_STATE:{
 				unreadLast();
-				return std::make_pair(std::make_optional<Token>(TokenType::COMMA, ';', pos, currentPos()), std::optional<CompilationError>());
+				return std::make_pair(std::make_optional<Token>(TokenType::COMMA, ',', pos, currentPos()), std::optional<CompilationError>());
 			}
 
 			// 预料之外的状态，如果执行到了这里，说明程序异常
