@@ -255,7 +255,7 @@ namespace miniplc0 {
 
 		// update func name
 		currentFunc = "";
-		_instructions>emplace_back(Operation::RET, indexCnt++);
+		_instructions.emplace_back(Operation::RET, indexCnt++);
 		return {};
 
 	}
