@@ -626,7 +626,7 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 		// instruction print
-		_instructions.emplace_back(Operation::IPRINT, indexCnt++);
+		//_instructions.emplace_back(Operation::IPRINT, indexCnt++);
 		return {};
 	}
 
@@ -650,6 +650,7 @@ namespace miniplc0 {
 			err = analyseExpression();
 			if (err.has_value())
 				return err;
+			_instructions.emplace_back(Operation::IPRINT, indexCnt++);
 		}
 
 		return {};
