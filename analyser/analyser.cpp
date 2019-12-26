@@ -756,6 +756,7 @@ namespace miniplc0 {
 		// if
 		if (!next.has_value() || next.value().GetType() != TokenType::IF)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidConditionStatement);
+		std::cout << "read if\n";
 		// (
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
@@ -781,6 +782,7 @@ namespace miniplc0 {
 		next = nextToken();
 		if (next.has_value() && next.value().GetType() == TokenType::ELSE)
 		{
+			std::cout << "read else\n";
 			// for condition satisfied, we also need to jump over "else statement"
 			// so we append a jump, stored in condition_stack2
 			_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
@@ -792,11 +794,12 @@ namespace miniplc0 {
 			int tmp_pos = condition_stack.top();
 			_instructions[tmp_pos].SetX(indexCnt);
 			condition_stack.pop();		
-
+			std::cout << "analyse statement\n";
 			// <statement>
 			err = analyseStatement();
 			if (err.has_value())
 				return err;
+			std::cout << "finish analyse statement\n";
 
 			// statement over, we need to deal with the "jump over else-statement"
 			if (condition_stack2.empty())
