@@ -50,7 +50,7 @@ void Analyse(std::istream& input, std::ostream& output){
 	return;
 }
 
-void AnalyseToBinary(std::istream& input, std::ostream& output) {
+void AnalyseToBinary(std::istream& input, std::ofstream* out) {
 	std::ofstream tmpStream;
 	tmpStream.open("tmp.s0", std::ios::out);
 	if (!tmpStream) {
@@ -61,7 +61,6 @@ void AnalyseToBinary(std::istream& input, std::ostream& output) {
 	Analyse(input, output);
 
 
-	std::istream* inputtmp2;
 	std::ifstream inputtmp;
 	inputtmp.open("tmp.s0", std::ios::in);
 	if (!inputtmp)
@@ -69,14 +68,11 @@ void AnalyseToBinary(std::istream& input, std::ostream& output) {
 		fmt::print(stderr, "Fail to open tmp.s0 for reading.\n");
 			exit(2);		
 	}
-	inputtmp2 = &inputtmp;
-	std::ofstream* outftmp;
-	outftmp = *output;
 
     try {
-        File f = File::parse_file_text(&inputtmp2);
+        File f = File::parse_file_text(*inputtmp);
         // f.output_text(std::cout);
-        f.output_binary(outftmp);
+        f.output_binary(out);
     }
     catch (const std::exception& e) {
         println(std::cerr, e.what());
@@ -96,7 +92,7 @@ int main(int argc, char** argv) {
 		.implicit_value(true)
 		.help("perform syntactic analysis(in the form of text) for the input file to the output file.");
 	program.add_argument("-h")
-		.defalut_value(false)
+		.default_value(false)
 		.implicit_value(true)
 		.help("perform syntactc analysis and output is .o0");
 	program.add_argument("-o", "--output")
@@ -151,7 +147,7 @@ int main(int argc, char** argv) {
 	}
 	else if (program["-h"] == true)
 	{
-		AnalyseToBinary(*input, *output);
+		AnalyseToBinary(*input, output);
 	}
 	else {
 		fmt::print(stderr, "You must choose tokenization or syntactic analysis.");
