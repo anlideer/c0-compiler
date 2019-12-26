@@ -371,6 +371,12 @@ namespace fmt {
 			case miniplc0::ISCAN:
 				name = "iscan";
 				break;
+			case miniplc0::BIPUSH:
+				name = "bipush";
+				break;
+			case miniplc0::PRINTL:
+				name = "printl";
+				break;
 
 			
 			}
