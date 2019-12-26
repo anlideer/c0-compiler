@@ -564,6 +564,7 @@ namespace miniplc0 {
 		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
 		// add to map
 		std::cout<<"add to map\n";
+		std::cout.flush();
 		if (isDeclared(next.value().GetValueString(), currentFunc))
 		{
 			addVariable(ident_tmp.value(), currentFunc);
