@@ -469,13 +469,27 @@ namespace miniplc0 {
 		// !!!notice that local vars have higher pirority than global vars 
 		if (isDeclared(tmpvar.value().GetValueString(), currentFunc))
 		{
-			int offset_tmp = getStackIndex(tmpvar.value().GetValueString(), currentFunc);
-			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+			if (isConstant(tmpvar.value().GetValueString(), currentFunc))
+			{
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrConstantChange);
+			}
+			else
+			{
+				int offset_tmp = getStackIndex(tmpvar.value().GetValueString(), currentFunc);
+				_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, 0);
+			}
 		}
 		else if (isGlobalDeclared(tmpvar.value().GetValueString()))
 		{
-			int offset_tmp = getGlobalIndex(tmpvar.value().GetValueString());
-			_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+			if (isGlobalConstant(tmpvar.value().GetValueString()))
+			{
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrConstantChange);
+			}
+			else
+			{
+				int offset_tmp = getGlobalIndex(tmpvar.value().GetValueString());
+				_instructions.emplace_back(Operation::LOADA, indexCnt++, offset_tmp, levelCnt);
+			}
 		}
 		else
 		{
@@ -1101,6 +1115,20 @@ namespace miniplc0 {
 				unreadToken();
 				break;
 			}
+
+			// const must be initialized
+			if (isConst)
+			{
+				if (isGlobalInitialized(tmpvar.value().GetValueString()) || isInitializedVariable(tmpvar.value().GetValueString(), currentFunc))
+				{
+					// pass
+				}
+				else
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrDConstantNeedValue);
+				}
+			}
+
 		}
 
 		return {};

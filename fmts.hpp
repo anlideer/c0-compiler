@@ -105,6 +105,9 @@ namespace fmt {
 			case miniplc0::ErrInvalidNum:
 				name = "Invalid hex number";
 				break;
+			case miniplc0::ErrConstantChange:
+				name = "Constant can't be changed";
+				break;
 
 			default:
 				name = "Error occurs.";
