@@ -530,7 +530,7 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNeedIdentifier);
-
+		auto ident_tmp = next;
 		// load var first
 		// declared? 
 
@@ -562,6 +562,15 @@ namespace miniplc0 {
 		// iscan and store
 		_instructions.emplace_back(Operation::ISCAN, indexCnt++);
 		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+		// add to map
+		if (isDeclared(next.value().GetValueString(), currentFunc))
+		{
+			addVariable(ident_tmp, currentFunc);
+		}
+		else if (isGlobalDeclared(next.value().GetValueString()))
+		{	
+			addGlobalVar(ident_tmp);
+		}		
 		return {};
 
 	 }
