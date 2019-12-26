@@ -239,6 +239,7 @@ namespace miniplc0 {
 				{
 					try
 					{
+						std::cout << "hex str: " << ss.str() << "\n";
 						int32_t tmp = std::stoi(ss.str(), 0, 16);
 						return std::make_pair(std::make_optional<Token>(TokenType::UNSIGNED_INTEGER, tmp, pos, currentPos()), std::optional<CompilationError>());
 					}
