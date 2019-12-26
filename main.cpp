@@ -70,12 +70,13 @@ void AnalyseToBinary(std::istream& input, std::ostream& output) {
 			exit(2);		
 	}
 	inputtmp2 = &inputtmp;
-
+	std::ofstream* outftmp;
+	outftmp = *output;
 
     try {
-        File f = File::parse_file_text(inputtmp2);
+        File f = File::parse_file_text(&inputtmp2);
         // f.output_text(std::cout);
-        f.output_binary(output);
+        f.output_binary(outftmp);
     }
     catch (const std::exception& e) {
         println(std::cerr, e.what());
@@ -95,7 +96,7 @@ int main(int argc, char** argv) {
 		.implicit_value(true)
 		.help("perform syntactic analysis(in the form of text) for the input file to the output file.");
 	program.add_argument("-h")
-		-defalut_value(false)
+		.defalut_value(false)
 		.implicit_value(true)
 		.help("perform syntactc analysis and output is .o0");
 	program.add_argument("-o", "--output")
