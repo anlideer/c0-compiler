@@ -120,7 +120,12 @@ namespace fmt {
 			case miniplc0::ErrNoFunction:
 				name = "This function does not exist, please define it first";
 				break;
-
+			case miniplc0::ErrVarFun:
+				name = "This identifier as been declared as a function/variable";
+				break;
+			case miniplc0::ErrLocalFunConflict:
+				name = "Since you have a variable sharing the same name with this function, you cannot call it";
+				break;
 
 			default:
 				name = "Error occurs.";

@@ -199,6 +199,11 @@ namespace miniplc0 {
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrFunctionRedefined);
 		}
+		else
+		{
+			if (isGlobalDeclared(next.value().GetValueString()))
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrVarFun);
+		}
 		std::string ident_tmp = next.value().GetValueString();
 		// update func name
 		currentFunc = next.value().GetValueString();
@@ -618,15 +623,9 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 
 		// iscan and store
-		try
-		{
-			_instructions.emplace_back(Operation::ISCAN, indexCnt++);
-			_instructions.emplace_back(Operation::ISTORE, indexCnt++);
-		}
-		catch(std::exception& e)
-		{	
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidInput);
-		}
+		_instructions.emplace_back(Operation::ISCAN, indexCnt++);
+		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+
 	
 		return {};
 
@@ -1073,11 +1072,16 @@ namespace miniplc0 {
 			}
 
 			// see if it's already defined?
+
 			if (handleGlobal)
 			{
 				if (isGlobalDeclared(next.value().GetValueString()))
 				{
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrRedeclared);
+				}
+				if (findFunc(next.value().GetValueString()) != -1)
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrVarFun);
 				}
 			}
 			else
@@ -1450,6 +1454,8 @@ namespace miniplc0 {
 		auto func_tmp = next;
 		if (findFunc(next.value().GetValueString()) == -1)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoFunction);
+		if (isDeclared(next.value().GetValueString(), currentFunc))
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLocalFunConflict);
 
 		// (
 		next = nextToken();

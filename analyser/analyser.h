@@ -13,7 +13,7 @@
 #include <stack>
 #include <climits>
 #include <string>
-#include <exception>
+
 
 namespace miniplc0 {
 
