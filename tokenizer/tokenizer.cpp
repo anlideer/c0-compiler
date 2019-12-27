@@ -459,7 +459,7 @@ namespace miniplc0 {
 
 					}
 					current_state = DFAState::INITIAL_STATE;
-					ss.clear();
+					ss.str("");	// clear
 					break;
 				}
 				// multiple-line comment
@@ -483,7 +483,7 @@ namespace miniplc0 {
 						}
 					}
 					current_state = DFAState::INITIAL_STATE;
-					ss.clear();
+					ss.str("");	// clear
 					break;
 				}
 				// just div
