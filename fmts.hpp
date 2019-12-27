@@ -114,6 +114,9 @@ namespace fmt {
 			case miniplc0::ErrNoReturn:
 				name = "Except return statement";
 				break;
+			case miniplc0::ErrFunctionRedefined:
+				name = "This function has already been defined, you can't define it twice";
+				break;
 
 			default:
 				name = "Error occurs.";

@@ -194,6 +194,11 @@ namespace miniplc0 {
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		}
+		// isDefinied?
+		if (findFunc(next.value().GetValueString()) >= 0)
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrFunctionRedefined);
+		}
 		std::string ident_tmp = next.value().GetValueString();
 		// update func name
 		currentFunc = next.value().GetValueString();
@@ -613,8 +618,15 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 
 		// iscan and store
-		_instructions.emplace_back(Operation::ISCAN, indexCnt++);
-		_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+		try
+		{
+			_instructions.emplace_back(Operation::ISCAN, indexCnt++);
+			_instructions.emplace_back(Operation::ISTORE, indexCnt++);
+		}
+		catch(std::exception& e)
+		{	
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidInput);
+		}
 	
 		return {};
 
@@ -663,8 +675,6 @@ namespace miniplc0 {
 		next = nextToken();
 		if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
-		// instruction print
-		//_instructions.emplace_back(Operation::IPRINT, indexCnt++);
 		return {};
 	}
 
@@ -675,12 +685,11 @@ namespace miniplc0 {
 		if (err.has_value())
 			return err;
 		_instructions.emplace_back(Operation::IPRINT, indexCnt++);
-		// space
-		_instructions.emplace_back(Operation::BIPUSH, indexCnt++, 32);
-		_instructions.emplace_back(Operation::CPRINT, indexCnt++);
+
 
 		while(true)
 		{
+
 			auto next = nextToken();
 			// ,
 			if (!next.has_value() || next.value().GetType() != TokenType::COMMA)
@@ -688,14 +697,15 @@ namespace miniplc0 {
 				unreadToken();
 				break;
 			}
+			// space
+			_instructions.emplace_back(Operation::BIPUSH, indexCnt++, 32);
+			_instructions.emplace_back(Operation::CPRINT, indexCnt++);
 			// <expression>
 			err = analyseExpression();
 			if (err.has_value())
 				return err;
 			_instructions.emplace_back(Operation::IPRINT, indexCnt++);
-			// space
-			_instructions.emplace_back(Operation::BIPUSH, indexCnt++, 32);
-			_instructions.emplace_back(Operation::CPRINT, indexCnt++);
+
 		}
 
 		return {};

@@ -440,8 +440,52 @@ namespace miniplc0 {
 			}
 			// /
 			case DIVISION_SIGN_STATE: {
-				unreadLast();
-				return std::make_pair(std::make_optional<Token>(TokenType::DIVISION_SIGN, '/', pos, currentPos()), std::optional<CompilationError>());
+				// single-line comment
+				if (current_char.has_value() && current_char.value() == '/')
+				{
+					while(true)
+					{
+						if (!nextT.has_value())
+							break;
+						auto nextT = nextChar();
+						if (nextT.value() == 0x0a || nextT.value() == 0x0d)
+						{
+							break;
+						}
+						else
+						{
+							continue;
+						}
+
+					}
+				}
+				// multiple-line comment
+				else if (current_char.has_value() && current_char.value() == '*')
+				{
+					// loop while get '*/'
+					while(true)
+					{
+						auto nextT = nextChar();
+						if (!nextT.has_value())
+							break;
+						if (nextT.value() == '*')
+						{
+							nextT = nextChar();
+							if (!nextT.has_value())
+								break;
+							else if (nextT.value() == '/')
+								break;
+							else
+								continue;
+						}
+					}
+				}
+				// just div
+				else
+				{
+					unreadLast();
+					return std::make_pair(std::make_optional<Token>(TokenType::DIVISION_SIGN, '/', pos, currentPos()), std::optional<CompilationError>());
+				}
 			}
 			// =
 			case EQUAL_SIGN_STATE: {

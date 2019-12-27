@@ -52,6 +52,7 @@ namespace miniplc0 {
 		ErrConstantChange,
 		ErrInvalidReturn,
 		ErrNoReturn,
+		ErrFunctionRedefined,
 
 	};
 
