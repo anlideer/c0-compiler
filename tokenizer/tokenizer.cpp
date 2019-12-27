@@ -458,6 +458,7 @@ namespace miniplc0 {
 						}
 
 					}
+					break;
 				}
 				// multiple-line comment
 				else if (current_char.has_value() && current_char.value() == '*')
@@ -479,6 +480,7 @@ namespace miniplc0 {
 								continue;
 						}
 					}
+					break;
 				}
 				// just div
 				else
