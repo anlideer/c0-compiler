@@ -117,7 +117,10 @@ namespace fmt {
 			case miniplc0::ErrFunctionRedefined:
 				name = "This function has already been defined, you can't define it twice";
 				break;
-			
+			case miniplc0::ErrNoFunction:
+				name = "This function does not exist, please define it first";
+				break;
+
 
 			default:
 				name = "Error occurs.";

@@ -195,7 +195,7 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidFunctionDifinition);
 		}
 		// isDefinied?
-		if (findFunc(next.value().GetValueString()) >= 0)
+		if (findFunc(next.value().GetValueString()) != -1)
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrFunctionRedefined);
 		}
@@ -1448,6 +1448,8 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrIncompleteFunctionCall);
 		auto func_tmp = next;
+		if (findFunc(next.value().GetValueString()) == -1)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoFunction);
 
 		// (
 		next = nextToken();
@@ -1643,7 +1645,10 @@ namespace miniplc0 {
 
 	int32_t Analyser::findFunc(const std::string& name)
 	{
-		return _func_map[name];
+		if (_func_map.count(name) == 0)
+			return -1;
+		else
+			return _func_map[name];
 	}
 
 	TokenType Analyser::getFuncType(const std::string& name)
