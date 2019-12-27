@@ -445,10 +445,10 @@ namespace miniplc0 {
 				{
 					while(true)
 					{
+						auto nextT = nextChar();
 						if (!nextT.has_value())
 							break;
-						auto nextT = nextChar();
-						if (nextT.value() == 0x0a || nextT.value() == 0x0d)
+						else if (nextT.value() == 0x0a || nextT.value() == 0x0d)
 						{
 							break;
 						}
