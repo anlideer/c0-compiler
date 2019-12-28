@@ -266,7 +266,7 @@ namespace miniplc0 {
 
 		returned = false;
 		// <compound-statement>
-		auto err = analyseCompoundStatement();
+		auto err = analyseCompoundStatement(false);
 		if (err.has_value())
 			return err;
 		if (returned == false && getFuncType(currentFunc) != TokenType::VOID)
@@ -283,7 +283,7 @@ namespace miniplc0 {
 
 
 	// <compound-statement>
-	std::optional<CompilationError> Analyser::analyseCompoundStatement(){
+	std::optional<CompilationError> Analyser::analyseCompoundStatement(bool inLoop){
 		auto next = nextToken();
 		// {
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
@@ -335,7 +335,7 @@ namespace miniplc0 {
 			else
 			{
 				unreadToken();
-				auto err = analyseStatement(false);
+				auto err = analyseStatement(inLoop);
 				if (err.has_value())
 					return err;
 			}
@@ -363,7 +363,7 @@ namespace miniplc0 {
 			else if (next.value().GetType() == TokenType::LEFT_BRACE)
 			{
 				unreadToken();
-				auto err = analyseCompoundStatement();
+				auto err = analyseCompoundStatement(inLoop);
 				if (err.has_value())
 					return err;
 			}
