@@ -10,6 +10,9 @@ namespace miniplc0 {
 	std::stack<int> condition_stack;	// store unhandled instructions' index for jump only
 	std::stack<int> condition_stack2;
 	std::stack<int> loop_stack;	// for "while" jump
+	std::vector<std::stack<int>> break_stack;	// for "break"
+	std::vector<std::stack<int>> continue_stack;	// for "continue"
+
 	int indexCnt = 0;	// for all index count
 	bool returned = false;
 	//std::vector<Instruction>::iterator funcIt;	// .functions: ... end pos 	// also, we need to notice that when constIt++, funcIt++ too. (we need to do this manually )
@@ -20,6 +23,8 @@ namespace miniplc0 {
 	int levelCnt = 0;	// to see which level we are now (for every func-call, we need to +1)
 	std::string currentFunc;	// for every single func-difinition / func-call, we need to give its name to this variable
 	int param_size_tmp = 0;
+	int loopLevel = 0;
+
 	
 
 	std::pair<std::vector<Instruction>, std::optional<CompilationError>> Analyser::Analyse() {
@@ -346,7 +351,7 @@ namespace miniplc0 {
 	}
 
 	// <statement>
-	std::optional<CompilationError> Analyser::analyseStatement(){
+	std::optional<CompilationError> Analyser::analyseStatement(bool inLoop){
 			auto next = nextToken();
 			if (!next.has_value())
 			{
@@ -379,13 +384,40 @@ namespace miniplc0 {
 					return err;
 
 			}
-			// <jump-statement> (now only <return-statement>)
+			// <jump-statement> 
+			//(<return-statement>)
 			else if (next.value().GetType() == TokenType::RETURN)
 			{
 				unreadToken();
 				auto err = analyseReturnStatement();
 				if (err.has_value())
 					return err;
+			}
+			// break;
+			else if (next.value().GetType() == TokenType::BREAK)
+			{
+				if (!inLoop)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrJmpNotInLoop);
+				next = nextToken();
+				// ;
+				if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+				// instruction
+				_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+				// add to stack
+				break_stack[loopLevel].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
+			}
+			//continue;
+			else if (next.value().GetType() == TokenType::CONTINUE)
+			{
+				// similar to break
+				if (!inLoop)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrJmpNotInLoop);
+				next = nextToken();
+				if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+				_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+				continue_stack[loopLevel].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
 			}
 			// <print-statement>
 			else if (next.value().GetType() == TokenType::PRINT)
@@ -712,7 +744,12 @@ namespace miniplc0 {
 
 
 	// <loop-statement> ::= 'while' '(' <condition> ')' <statement>
+	//					|| 'for' '('<for-init-statement> [<condition>]';' [<for-update-expression>]')' <statement>
 	std::optional<CompilationError> Analyser::analyseLoopStatement(){
+		loopLevel++;
+		break_stack.push_back(std::stack<int>());
+		continue_stack.push_back(std::stack<int>());
+
 		auto next = nextToken();
 		// while
 		if (!next.has_value() || next.value().GetType() != TokenType::WHILE)
@@ -742,13 +779,40 @@ namespace miniplc0 {
 		if (loop_stack.empty())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLoop);
 		int tmp_pos = loop_stack.top();	
-		int index_of_condition_ins = _instructions[tmp_pos].GetIndex();	// for another jump's use
+		//int index_of_condition_ins = _instructions[tmp_pos].GetIndex();	// for another jump's use
 		_instructions[tmp_pos].SetX(indexCnt+1);	// for we still have one jump ins here
 		loop_stack.pop();
+
+		// deal with 'break' & 'continue'
+
+		// continue
+		if (loopLevel > continue_stack.size() - 1)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
+		std::stack tmp_continue_stack = continue_stack[loopLevel];
+		while(!tmp_continue_stack.empty())
+		{
+			int tmp_index = tmp_continue_stack.top();
+			_instructions[tmp_index].SetX(indexCnt+1);
+			tmp_continue_stack.pop();
+		}
 		// jump back to condition calculate
 		_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
 
+		// break
+		if (loopLevel > break_stack.size() - 1)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
+		std::stack tmp_break_stack = break_stack[loopLevel];
+		while(!tmp_break_stack.empty())
+		{
+			int tmp_index = tmp_break_stack.top();
+			_instructions[tmp_index].SetX(indexCnt+1);	// next ins is out of loop
+			tmp_break_stack.pop();
+		}
 
+
+		continue_stack.pop_back();
+		break_stack.pop_back();
+		loopLevel--;
 		return {};
 	}
 

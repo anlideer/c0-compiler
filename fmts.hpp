@@ -126,6 +126,12 @@ namespace fmt {
 			case miniplc0::ErrLocalFunConflict:
 				name = "Since you have a variable sharing the same name with this function, you cannot call it";
 				break;
+			case miniplc0::ErrJmpNotInLoop:
+				name = "You can't use break & continue out of loop statement";
+				break;
+			case miniplc0::ErrMyFault:
+				name = "My code goes wrong, sorry";
+				break;
 
 			default:
 				name = "Error occurs.";
@@ -259,6 +265,16 @@ namespace fmt {
 			case miniplc0::RETURN:
 				name = "Return";
 				break;
+			case miniplc0::BREAK:
+				name = "Break";
+				break;
+			case miniplc0::CONTINUE:
+				name = "Continue";
+				break;
+			case miniplc0::FOR:
+				name = "For";
+				break;
+
 			default:
 				name = "Unknown sign";
 			}

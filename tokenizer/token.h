@@ -39,6 +39,10 @@ namespace miniplc0 {
 		NOTEQUAL_SIGN,
 		COMMA,
 		RETURN,
+		BREAK,
+		CONTINUE,
+		FOR,
+		
 
 	};
 

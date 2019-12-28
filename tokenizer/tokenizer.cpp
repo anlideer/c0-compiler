@@ -341,8 +341,20 @@ namespace miniplc0 {
 					{
 						return std::make_pair(std::make_optional<Token>(TokenType::RETURN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
-					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  || ss.str() == "for"
-						|| ss.str() == "do" || ss.str() == "break" || ss.str() == "continue")
+					else if (ss.str() == "break")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::BREAK, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "continue")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::CONTINUE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "for")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::FOR, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  
+						|| ss.str() == "do" )
 					{
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidIdentifier));
 					}
@@ -399,8 +411,20 @@ namespace miniplc0 {
 					{
 						return std::make_pair(std::make_optional<Token>(TokenType::RETURN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
-					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  || ss.str() == "for"
-						|| ss.str() == "do" || ss.str() == "break" || ss.str() == "continue")
+					else if (ss.str() == "break")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::BREAK, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "continue")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::CONTINUE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "for")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::FOR, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  
+						|| ss.str() == "do")
 					{
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidIdentifier));
 					}
