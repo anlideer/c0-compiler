@@ -825,7 +825,7 @@ namespace miniplc0 {
 	<condition-statement> ::= 
      	'if' '(' <condition> ')' <statement> ['else' <statement>]
 	*/
-	std::optional<CompilationError> Analyser::analyseConditionStatement(){
+	std::optional<CompilationError> Analyser::analyseConditionStatement(bool inLoop){
 		auto next = nextToken();
 		// if
 		if (!next.has_value() || next.value().GetType() != TokenType::IF)
@@ -845,7 +845,7 @@ namespace miniplc0 {
 
 		// if the condition is satisfied, we can process this statement
 		// <statement>
-		err = analyseStatement(false);
+		err = analyseStatement(inLoop);
 		if (err.has_value())
 			return err;
 

@@ -63,7 +63,7 @@ namespace miniplc0 {
 		// <compound-statement>
 		std::optional<CompilationError> analyseCompoundStatement(bool inLoop);
 		// <condition-statement>
-		std::optional<CompilationError> analyseConditionStatement();
+		std::optional<CompilationError> analyseConditionStatement(bool inLoop);
 		// <condition>
 		std::optional<CompilationError> analyseCondition(bool fromIf);
 		// <statement>
