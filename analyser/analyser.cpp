@@ -805,7 +805,7 @@ namespace miniplc0 {
 			else
 			{
 				unreadToken();
-				auto err = analyseCondition(true);
+				auto err = analyseCondition(false);
 				if (err.has_value())
 					return err;
 			}
