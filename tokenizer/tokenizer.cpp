@@ -519,19 +519,19 @@ namespace miniplc0 {
 			}
 			// =
 			case EQUAL_SIGN_STATE: {
+				// ==
+				if (current_char.has_value() && current_char.value() == '=')
+				{
+					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, std::string("=="), pos, currentPos()), std::optional<CompilationError>());					
+					
+				}
 				// =
-				if (!current_char.has_value() || current_char.value() != '=')
+				else
 				{
 					unreadLast();
 					return std::make_pair(std::make_optional<Token>(TokenType::ASSIGN_SIGN, '=', pos, currentPos()), std::optional<CompilationError>());
-				}
-				// ==
-				else
-				{
-					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, "==", pos, currentPos()), std::optional<CompilationError>());
-				}
 
-			}
+				}
 			// ;
 			case SEMICOLON_STATE: {
 				unreadLast();
@@ -559,16 +559,17 @@ namespace miniplc0 {
 			}
 			// >
 			case BIGGER_STATE:{
+				// >=
+				if (current_char.has_value() && current_char.value() == '=')
+				{
+					return std::make_pair(std::make_optional<Token>(TokenType::NOTSMALLER_SIGN, std::string(">="), pos, currentPos()), std::optional<CompilationError>());
+					
+				}
 				// >
-				if (!current_char.has_value() || current_char.value() != '=')
+				else
 				{
 					unreadLast();
 					return std::make_pair(std::make_optional<Token>(TokenType::BIGGER_SIGN, '>', pos, currentPos()), std::optional<CompilationError>());
-				}
-				// >=
-				else
-				{
-					return std::make_pair(std::make_optional<Token>(TokenType::NOTSMALLER_SIGN, ">=", pos, currentPos()), std::optional<CompilationError>());
 				}
 				break;
 			}
@@ -583,7 +584,7 @@ namespace miniplc0 {
 				// <=
 				else
 				{
-					return std::make_pair(std::make_optional<Token>(TokenType::NOTBIGGER_SIGN, "<=", pos, currentPos()), std::optional<CompilationError>());
+					return std::make_pair(std::make_optional<Token>(TokenType::NOTBIGGER_SIGN, std::string("<="), pos, currentPos()), std::optional<CompilationError>());
 				}
 				break;
 			}
@@ -599,7 +600,7 @@ namespace miniplc0 {
 				// !=
 				else
 				{
-					return std::make_pair(std::make_optional<Token>(TokenType::NOTEQUAL_SIGN, "!=", pos, currentPos()), std::optional<CompilationError>());
+					return std::make_pair(std::make_optional<Token>(TokenType::NOTEQUAL_SIGN, std::string("!="), pos, currentPos()), std::optional<CompilationError>());
 				}
 				break;
 			}

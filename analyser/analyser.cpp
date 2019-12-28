@@ -746,6 +746,12 @@ namespace miniplc0 {
 
 	// <loop-statement> ::= 'while' '(' <condition> ')' <statement>
 	//					|| 'for' '('<for-init-statement> [<condition>]';' [<for-update-expression>]')' <statement>
+	/*
+	<for-init-statement> ::= 
+    	[<assignment-expression>{','<assignment-expression>}]';'
+	<for-update-expression> ::=
+    	(<assignment-expression>|<function-call>){','(<assignment-expression>|<function-call>)}
+	*/
 	std::optional<CompilationError> Analyser::analyseLoopStatement(){
 		loopLevel++;
 		break_stack.push_back(std::stack<int>());
@@ -799,9 +805,6 @@ namespace miniplc0 {
 			_instructions[tmp_index].SetX(conditionIndex);
 			tmp_continue_stack.pop();
 		}
-		// jump back to condition calculate
-		_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
-
 		// break
 		if (loopLevel > break_stack.size())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
@@ -810,9 +813,13 @@ namespace miniplc0 {
 		{
 			int tmp_index = tmp_break_stack.top();
 			//std::cout << "tmp_index for break: " << tmp_index << "\n";
-			_instructions[tmp_index].SetX(indexCnt);	// next ins is out of loop
+			_instructions[tmp_index].SetX(indexCnt+1);	// next ins is out of loop
 			tmp_break_stack.pop();
 		}
+
+		// jump back to condition calculate
+		_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
+
 
 
 		continue_stack.pop_back();
