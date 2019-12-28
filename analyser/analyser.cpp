@@ -750,6 +750,8 @@ namespace miniplc0 {
 		loopLevel++;
 		break_stack.push_back(std::stack<int>());
 		continue_stack.push_back(std::stack<int>());
+		std::cout << break_stack.size() << "\n";
+		std::cout << continue_stack.size() << "\n";
 
 		auto next = nextToken();
 		// while
