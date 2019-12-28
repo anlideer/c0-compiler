@@ -529,7 +529,6 @@ namespace miniplc0 {
 				else
 				{
 					ss << '=';
-					ss << '=';
 					return std::make_pair(std::make_optional<Token>(TokenType::EQUAL_SIGN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 				}
 
@@ -570,7 +569,6 @@ namespace miniplc0 {
 				// >=
 				else
 				{
-					ss << '>';
 					ss << '=';
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTSMALLER_SIGN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 				}
@@ -587,7 +585,6 @@ namespace miniplc0 {
 				// <=
 				else
 				{
-					ss << '<';
 					ss << '=';
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTBIGGER_SIGN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 				}
@@ -605,7 +602,6 @@ namespace miniplc0 {
 				// !=
 				else
 				{
-					ss << '!';
 					ss << '=';
 					return std::make_pair(std::make_optional<Token>(TokenType::NOTEQUAL_SIGN, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 				}

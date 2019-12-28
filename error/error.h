@@ -58,6 +58,8 @@ namespace miniplc0 {
 		ErrLocalFunConflict,
 		ErrJmpNotInLoop,
 		ErrMyFault,
+		ErrForInit,
+		ErrForUpdate,
 
 
 	};

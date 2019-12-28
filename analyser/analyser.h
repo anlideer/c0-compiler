@@ -80,7 +80,10 @@ namespace miniplc0 {
 		std::optional<CompilationError> analyseAssignmentStatement();
 		// <return-statement>
 		std::optional<CompilationError> analyseReturnStatement();
-		
+		// <for-init-statement>
+		std::optional<CompilationError> analyseForInitStatement();
+		// <for-update-expression>
+		std::optional<CompilationError> analyseForUpdate();
 
 
 		// TODO: Token 缓冲区相关操作

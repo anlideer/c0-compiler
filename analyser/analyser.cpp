@@ -377,7 +377,7 @@ namespace miniplc0 {
 
 			}
 			// <loop-statement>
-			else if (next.value().GetType() == TokenType::WHILE)
+			else if (next.value().GetType() == TokenType::WHILE || next.value().GetType() == TokenType::FOR)
 			{
 				unreadToken();
 				auto err = analyseLoopStatement();
@@ -758,32 +758,94 @@ namespace miniplc0 {
 		continue_stack.push_back(std::stack<int>());
 
 
+		int conditionIndex = 0;
+		// while || for
 		auto next = nextToken();
 		// while
-		if (!next.has_value() || next.value().GetType() != TokenType::WHILE)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
-		next = nextToken();
-		// (
-		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
-		// <condition>
-		// if condition not satisfied, we need to jump out of the loop
-		// else we continue the loop
-		int conditionIndex = indexCnt;
-		auto err = analyseCondition(false);
-		if (err.has_value())
-			return err;
-		// )
-		next = nextToken();
-		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
-			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+		if (next.has_value() && next.value().GetType() = TokenType::WHILE)
+		{
+			next = nextToken();
+			// (
+			if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			// <condition>
+			// if condition not satisfied, we need to jump out of the loop
+			// else we continue the loop
+			conditionIndex = indexCnt;
+			auto err = analyseCondition(false);
+			if (err.has_value())
+				return err;
+			// )
+			next = nextToken();
+			if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+		}
+		// for
+		else if (next.has_value() && next.value().GetType() == TokenType::FOR)
+		{
+			// (
+			next = nextToken();
+			if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+			// <for-init-statement>
+			auto err = analyseForInitStatement();
+			if (err.has_value())
+				return err;
+			// [condition]
+			conditionIndex = indexCnt;
+			next = nextToken();
+			if (next.has_value() && next.value().GetType() == TokenType::COMMA)
+			{
+				_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+				// add to stack
+				loop_stack.push(std::distance(_instructions.begin(), _instructions.end()) - 1);
+			}
+			else
+			{
+				unreadToken();
+				auto err = analyseCondition();
+				if (err.has_value())
+					return err;
+			}
+			//;
+			next = nextToken();
+			if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+			// [for-update-expression]
+			next = nextToken();
+			if (!next.has_value())
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+			// )
+			else if (next.value().GetType() == TokenType::RIGHT_BRACKET)
+			{
 
-		//std::cout << "enter statement\n";
+			}
+			// for-update
+			else
+			{
+				unreadToken();
+				auto err = analyseForUpdate();
+				if (err.has_value())
+					return err;
+				// )
+				next = nextToken();
+				if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+			}
+
+		}
+		else
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrInvalidStatement);
+		}
+
+
+
 		// <statement>
 		err = analyseStatement(true);
 		if (err.has_value())
 			return err;
-		//std::cout << "return from statement\n";
+
 		// statement over, handling the previous jump and jump back
 		if (loop_stack.empty())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLoop);
@@ -797,7 +859,6 @@ namespace miniplc0 {
 		// continue
 		if (loopLevel > continue_stack.size())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
-		//std::cout << "try to get " << loopLevel - 1 << "\n";
 		std::stack tmp_continue_stack = continue_stack[loopLevel-1];
 		while(!tmp_continue_stack.empty())
 		{
@@ -812,7 +873,6 @@ namespace miniplc0 {
 		while(!tmp_break_stack.empty())
 		{
 			int tmp_index = tmp_break_stack.top();
-			//std::cout << "tmp_index for break: " << tmp_index << "\n";
 			_instructions[tmp_index].SetX(indexCnt+1);	// next ins is out of loop
 			tmp_break_stack.pop();
 		}
@@ -828,6 +888,145 @@ namespace miniplc0 {
 		return {};
 	}
 
+
+	// <for-update-expression>
+	// (<assignment-expression>|<function-call>){','(<assignment-expression>|<function-call>)}
+	std::optional<CompilationError> Analyser::analyseForUpdate(){
+		auto next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
+		{
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
+		}
+		else 
+		{
+			// pre-read again
+			next = nextToken();
+			if (!next.has_value())
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
+			// <assignment-expression>
+			else if (next.value().GetType() == TokenType::ASSIGN_SIGN)
+			{
+				unreadToken();
+				unreadToken();
+				auto err = analyseAssignmentStatement();
+				if (err.has_value())
+					return err;
+			}
+			// <function-call>
+			else if (next.value().GetType() == TokenType::LEFT_BRACKET)
+			{
+				unreadToken();
+				unreadToken();
+				auto err = analyseFunctionCall();
+				if (err.has_value())
+					return err;
+			}
+			else
+				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
+		}
+
+		while(true)
+		{
+			next = nextToken();
+			if (!next.has_value())
+			{
+				unreadToken();
+				break;
+			}
+			// ,
+			else if (next.value().GetType() == TokenType::COMMA)
+			{
+				next = nextToken();
+				if (!next.has_value() || next.value().GetType() != TokenType::IDENTIFIER)
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
+				}
+				else 
+				{
+					// pre-read again
+					next = nextToken();
+					if (!next.has_value())
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
+					// <assignment-expression>
+					else if (next.value().GetType() == TokenType::ASSIGN_SIGN)
+					{
+						unreadToken();
+						unreadToken();
+						auto err = analyseAssignmentStatement();
+						if (err.has_value())
+							return err;
+					}
+					// <function-call>
+					else if (next.value().GetType() == TokenType::LEFT_BRACKET)
+					{
+						unreadToken();
+						unreadToken();
+						auto err = analyseFunctionCall();
+						if (err.has_value())
+							return err;
+					}
+					else
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
+				}
+				
+				continue;
+			}
+			// break
+			else
+			{
+				unreadToken();
+				break;
+			}
+		}
+
+
+		return {};
+	}
+
+
+
+	// <for-init-statment>
+	// [<assignment-expression>{','<assignment-expression>}]';'
+	std::optional<CompilationError> Analyser::analyseForInitStatement(){
+		auto next = nextToken();
+		// ;
+		if (next.has_value() && next.value().GetType() == TokenType::SEMICOLON)
+		{
+			//pass
+		}
+		// <assignment-expressoin>...
+		else if (next.has_value() && next.value().GetType() == TokenType::IDENTIFIER)
+		{
+			unreadToken();
+			auto err = analyseAssignmentStatement();
+			if (err.has_value())
+				return err;
+			while(true)
+			{
+				auto next2 = nextToken();
+				if (next2.has_value() && next2.value().GetType() == TokenType::COMMA)
+				{
+					// <assignment-expression>
+					auto err = analyseAssignmentStatement();
+					if (err.has_value())
+						return err;
+					continue;
+				}
+				else if (next2.has_value())
+				{
+					break;
+				}
+				else
+				{
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForInit);
+				}
+			}
+		}
+		else 
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForInit);
+
+		return {};
+	}	
 
 	// <condition-statement>
 	/*

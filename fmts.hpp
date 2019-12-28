@@ -132,6 +132,12 @@ namespace fmt {
 			case miniplc0::ErrMyFault:
 				name = "My code goes wrong, sorry";
 				break;
+			case miniplc0::ErrForInit:
+				name = "Invalid init-statement for for-statement";
+				break;
+			case miniplc0::ErrForUpdate:
+				name = "Invalid for-update-statement";
+				break;
 
 			default:
 				name = "Error occurs.";
