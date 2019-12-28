@@ -379,6 +379,7 @@ namespace miniplc0 {
 			// <loop-statement>
 			else if (next.value().GetType() == TokenType::WHILE || next.value().GetType() == TokenType::FOR)
 			{
+				std::cout << "enter loop\n";
 				unreadToken();
 				auto err = analyseLoopStatement();
 				if (err.has_value())
@@ -783,6 +784,7 @@ namespace miniplc0 {
 		// for
 		else if (next.has_value() && next.value().GetType() == TokenType::FOR)
 		{
+			std::cout << "in for\n";
 			// (
 			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
