@@ -406,7 +406,7 @@ namespace miniplc0 {
 				// instruction
 				_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
 				// add to stack
-				break_stack[loopLevel].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
+				break_stack[loopLevel-1].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
 			}
 			//continue;
 			else if (next.value().GetType() == TokenType::CONTINUE)
@@ -418,7 +418,7 @@ namespace miniplc0 {
 				if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
 				_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
-				continue_stack[loopLevel].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
+				continue_stack[loopLevel-1].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
 			}
 			// <print-statement>
 			else if (next.value().GetType() == TokenType::PRINT)
@@ -772,12 +772,12 @@ namespace miniplc0 {
 		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 
-		std::cout << "enter statement\n";
+		//std::cout << "enter statement\n";
 		// <statement>
 		err = analyseStatement(true);
 		if (err.has_value())
 			return err;
-		std::cout << "return from statement\n";
+		//std::cout << "return from statement\n";
 		// statement over, handling the previous jump and jump back
 		if (loop_stack.empty())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLoop);
@@ -791,7 +791,7 @@ namespace miniplc0 {
 		// continue
 		if (loopLevel > continue_stack.size())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
-		std::cout << "try to get " << loopLevel - 1 << "\n";
+		//std::cout << "try to get " << loopLevel - 1 << "\n";
 		std::stack tmp_continue_stack = continue_stack[loopLevel-1];
 		while(!tmp_continue_stack.empty())
 		{
@@ -809,7 +809,7 @@ namespace miniplc0 {
 		while(!tmp_break_stack.empty())
 		{
 			int tmp_index = tmp_break_stack.top();
-			std::cout << "tmp_index for break: " << tmp_index << "\n";
+			//std::cout << "tmp_index for break: " << tmp_index << "\n";
 			_instructions[tmp_index].SetX(indexCnt+1);	// next ins is out of loop
 			tmp_break_stack.pop();
 		}
