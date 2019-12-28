@@ -371,7 +371,7 @@ namespace miniplc0 {
 			else if (next.value().GetType() == TokenType::IF)
 			{
 				unreadToken();
-				auto err = analyseConditionStatement();
+				auto err = analyseConditionStatement(inLoop);
 				if (err.has_value())
 					return err;
 
