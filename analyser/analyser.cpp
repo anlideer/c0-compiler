@@ -379,7 +379,6 @@ namespace miniplc0 {
 			// <loop-statement>
 			else if (next.value().GetType() == TokenType::WHILE || next.value().GetType() == TokenType::FOR)
 			{
-				std::cout << "enter loop\n";
 				unreadToken();
 				auto err = analyseLoopStatement();
 				if (err.has_value())
@@ -757,14 +756,18 @@ namespace miniplc0 {
 		loopLevel++;
 		break_stack.push_back(std::stack<int>());
 		continue_stack.push_back(std::stack<int>());
-
+		bool isWhile = true;
 
 		int conditionIndex = 0;
+		int updateIndexBefore = 0;
+		int unhandledJmpOverUpdateIndex = 0;
+
 		// while || for
 		auto next = nextToken();
 		// while
 		if (next.has_value() && next.value().GetType() == TokenType::WHILE)
 		{
+			isWhile = true;
 			next = nextToken();
 			// (
 			if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
@@ -783,8 +786,8 @@ namespace miniplc0 {
 		}
 		// for
 		else if (next.has_value() && next.value().GetType() == TokenType::FOR)
-		{
-			std::cout << "in for\n";
+		{	
+			isWhile = false;
 			// (
 			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
@@ -813,14 +816,19 @@ namespace miniplc0 {
 			next = nextToken();
 			if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+			// jump over update
+			_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+			unhandledJmpOverUpdateIndex = std::distance(_instructions.begin(), _instructions.end()) - 1;
+
 			// [for-update-expression]
+			updateIndexBefore = indexCnt;
 			next = nextToken();
 			if (!next.has_value())
 				return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 			// )
 			else if (next.value().GetType() == TokenType::RIGHT_BRACKET)
 			{
-
+				// pass
 			}
 			// for-update
 			else
@@ -834,7 +842,10 @@ namespace miniplc0 {
 				if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 			}
-
+			// after update, jmp to condition
+			_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
+			// deal with unhandled
+			_instructions[unhandledJmpOverUpdateIndex].SetX(indexCnt);
 		}
 		else
 		{
@@ -879,8 +890,17 @@ namespace miniplc0 {
 			tmp_break_stack.pop();
 		}
 
-		// jump back to condition calculate
-		_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
+		// jmp back
+		if (isWhile)
+		{
+			// jump back to condition calculate
+			_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
+		}
+		else
+		{
+			// jmup back to just before update
+			_instructions.emplace_back(Operation::JMP, indexCnt++, updateIndexBefore);
+		}
 
 
 
