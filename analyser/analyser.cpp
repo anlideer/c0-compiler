@@ -796,7 +796,7 @@ namespace miniplc0 {
 		while(!tmp_continue_stack.empty())
 		{
 			int tmp_index = tmp_continue_stack.top();
-			_instructions[tmp_index].SetX(indexCnt+1);
+			_instructions[tmp_index].SetX(conditionIndex);
 			tmp_continue_stack.pop();
 		}
 		// jump back to condition calculate
@@ -810,7 +810,7 @@ namespace miniplc0 {
 		{
 			int tmp_index = tmp_break_stack.top();
 			//std::cout << "tmp_index for break: " << tmp_index << "\n";
-			_instructions[tmp_index].SetX(indexCnt+1);	// next ins is out of loop
+			_instructions[tmp_index].SetX(indexCnt);	// next ins is out of loop
 			tmp_break_stack.pop();
 		}
 
