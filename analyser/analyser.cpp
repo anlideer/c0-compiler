@@ -787,9 +787,9 @@ namespace miniplc0 {
 		// deal with 'break' & 'continue'
 
 		// continue
-		if (loopLevel > continue_stack.size() - 1)
+		if (loopLevel > continue_stack.size())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
-		std::stack tmp_continue_stack = continue_stack[loopLevel];
+		std::stack tmp_continue_stack = continue_stack[loopLevel-1];
 		while(!tmp_continue_stack.empty())
 		{
 			int tmp_index = tmp_continue_stack.top();
@@ -800,9 +800,9 @@ namespace miniplc0 {
 		_instructions.emplace_back(Operation::JMP, indexCnt++, conditionIndex);
 
 		// break
-		if (loopLevel > break_stack.size() - 1)
+		if (loopLevel > break_stack.size())
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
-		std::stack tmp_break_stack = break_stack[loopLevel];
+		std::stack tmp_break_stack = break_stack[loopLevel-1];
 		while(!tmp_break_stack.empty())
 		{
 			int tmp_index = tmp_break_stack.top();
