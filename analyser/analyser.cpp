@@ -269,7 +269,7 @@ namespace miniplc0 {
 		auto err = analyseCompoundStatement();
 		if (err.has_value())
 			return err;
-		if (returned == false && getFuncType(currentFunc) == TokenType::INT)
+		if (returned == false && getFuncType(currentFunc) != TokenType::VOID)
 		{
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoReturn);
 		}
@@ -326,7 +326,8 @@ namespace miniplc0 {
 			next = nextToken();
 			if (!next.has_value() || (next.value().GetType() != TokenType::LEFT_BRACE && next.value().GetType() != TokenType::IF && next.value().GetType() != TokenType::WHILE
 				&& next.value().GetType() != TokenType::PRINT && next.value().GetType() != TokenType::SCAN && next.value().GetType() != TokenType::IDENTIFIER
-				&& next.value().GetType() != TokenType::SEMICOLON && next.value().GetType() != TokenType::RETURN))
+				&& next.value().GetType() != TokenType::SEMICOLON && next.value().GetType() != TokenType::RETURN && next.value().GetType() != TokenType::BREAK 
+				&& next.value().GetType() != TokenType::CONTINUE))
 			{
 				unreadToken();
 				break;
