@@ -334,7 +334,7 @@ namespace miniplc0 {
 			else
 			{
 				unreadToken();
-				auto err = analyseStatement();
+				auto err = analyseStatement(false);
 				if (err.has_value())
 					return err;
 			}
@@ -771,7 +771,7 @@ namespace miniplc0 {
 			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
 
 		// <statement>
-		err = analyseStatement();
+		err = analyseStatement(true);
 		if (err.has_value())
 			return err;
 
@@ -844,7 +844,7 @@ namespace miniplc0 {
 
 		// if the condition is satisfied, we can process this statement
 		// <statement>
-		err = analyseStatement();
+		err = analyseStatement(false);
 		if (err.has_value())
 			return err;
 
@@ -866,7 +866,7 @@ namespace miniplc0 {
 			_instructions[tmp_pos].SetX(indexCnt);
 			condition_stack.pop();		
 			// <statement>
-			err = analyseStatement();
+			err = analyseStatement(false);
 			if (err.has_value())
 				return err;
 
