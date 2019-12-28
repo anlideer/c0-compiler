@@ -762,7 +762,7 @@ namespace miniplc0 {
 		// while || for
 		auto next = nextToken();
 		// while
-		if (next.has_value() && next.value().GetType() = TokenType::WHILE)
+		if (next.has_value() && next.value().GetType() == TokenType::WHILE)
 		{
 			next = nextToken();
 			// (
@@ -803,7 +803,7 @@ namespace miniplc0 {
 			else
 			{
 				unreadToken();
-				auto err = analyseCondition();
+				auto err = analyseCondition(true);
 				if (err.has_value())
 					return err;
 			}
@@ -842,7 +842,7 @@ namespace miniplc0 {
 
 
 		// <statement>
-		err = analyseStatement(true);
+		auto err = analyseStatement(true);
 		if (err.has_value())
 			return err;
 
@@ -968,7 +968,7 @@ namespace miniplc0 {
 					else
 						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrForUpdate);
 				}
-				
+
 				continue;
 			}
 			// break
