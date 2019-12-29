@@ -595,7 +595,7 @@ namespace miniplc0 {
 				next = nextToken();
 				if (!next.has_value())
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLabeledStatement);
-				else if (next.value().GetType() == TokenType::INT)
+				else if (next.value().GetType() == TokenType::UNSIGNED_INTEGER)
 				{
 					// instruction
 					_instructions.emplace_back(Operation::DUP, indexCnt++);
