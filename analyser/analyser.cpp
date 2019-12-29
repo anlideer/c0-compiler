@@ -600,8 +600,6 @@ namespace miniplc0 {
 					// instruction
 					_instructions.emplace_back(Operation::DUP, indexCnt++);
 					_instructions.emplace_back(Operation::IPUSH, indexCnt++, std::any_cast<int>(next.value().GetValue()));
-					_instructions.emplace_back(Operation::ICMP, indexCnt++);
-					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);
 					_instructions.emplace_back(Operation::JNE, indexCnt++, 0);
 					// save the index of the JNE instruction
 					jne_index = std::distance(_instructions.begin(), _instructions.end())-1;
