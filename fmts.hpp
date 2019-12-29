@@ -138,7 +138,7 @@ namespace fmt {
 			case miniplc0::ErrForUpdate:
 				name = "Invalid for-update-statement";
 				break;
-			case miniplc0::ErrSwitc:
+			case miniplc0::ErrSwitch:
 				name = "Invalid switch-statement";
 				break;
 			case miniplc0::ErrNoLeftBracket:
