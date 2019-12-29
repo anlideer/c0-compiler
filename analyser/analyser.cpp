@@ -549,7 +549,7 @@ namespace miniplc0 {
 
 
 		// <labeled-statement>
-		auto err = analyseLabeledStatementSeq(inLoop, true);
+		err = analyseLabeledStatementSeq(inLoop, true);
 		if (err.has_value())
 			return err;
 
