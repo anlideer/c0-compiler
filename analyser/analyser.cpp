@@ -519,7 +519,7 @@ namespace miniplc0 {
 	*/
 	std::optional<CompilationError> Analyser::analyseSwitchStatement(bool inLoop, bool inSwitch){
 		switchLevel++;
-		break_switch_stack.push_back(std::stack<int>);
+		break_switch_stack.push_back(std::stack<int>());
 
 
 		// switch
@@ -574,13 +574,12 @@ namespace miniplc0 {
     	|'default' ':' <statement>
 	*/	
 	std::optional<CompilationError> Analyser::analyseLabeledStatementSeq(bool inLoop, bool inSwitch){
-		auto next;
 		bool hasDefault = false;
 		int jne_index = 0;
 		while(true)
 		{
 			// case / default
-			next = nextToken();
+			auto next = nextToken();
 			if (!next.has_value())
 			{
 				unreadToken();
