@@ -64,7 +64,7 @@ namespace miniplc0 {
 		ErrForUpdate,
 		ErrSwitch,
 		ErrCaseAfterDefault,
-		ErrNoCOLON,
+		ErrNoColon,
 		ErrLabeledStatement,
 
 
