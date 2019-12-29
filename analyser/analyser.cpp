@@ -578,6 +578,7 @@ namespace miniplc0 {
 		int jne_index = 0;
 		while(true)
 		{
+			std::cout << "dealing with case...\n";
 			// case / default
 			auto next = nextToken();
 			if (!next.has_value())
