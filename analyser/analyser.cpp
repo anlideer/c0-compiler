@@ -578,18 +578,15 @@ namespace miniplc0 {
 		int jne_index = 0;
 		while(true)
 		{
-			std::cout << "dealing with case...\n";
 			// case / default
 			auto next = nextToken();
 			if (!next.has_value())
 			{
-				std::cout << "break\n";
 				unreadToken();
 				break;
 			}
 			else if (next.value().GetType() == TokenType::CASE)
 			{
-				std::cout << "case\n";
 
 				if (hasDefault)
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrCaseAfterDefault);
@@ -629,7 +626,6 @@ namespace miniplc0 {
 			}
 			else if (next.value().GetType() == TokenType::DEFAULT)
 			{
-				std::cout << "default\n";
 				if (hasDefault)
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrCaseAfterDefault);
 
@@ -647,7 +643,6 @@ namespace miniplc0 {
 			}
 			else
 			{
-				std::cout << "break\n";
 				unreadToken();
 				break;
 			}
@@ -662,6 +657,7 @@ namespace miniplc0 {
 		{
 			int tmpi = tmp_stack.top();
 			_instructions[tmpi].SetX(indexCnt);
+			tmp_stack.pop();
 		}
 
 		return {};
