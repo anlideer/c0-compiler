@@ -147,6 +147,9 @@ namespace miniplc0 {
 					case ',':
 						current_state = DFAState::COMMA_STATE;
 						break;
+					case ':':
+						current_state = DFAState::COLON_STATE;
+						break;
 
 					// 不接受的字符导致的不合法的状态
 					default:
@@ -353,8 +356,19 @@ namespace miniplc0 {
 					{
 						return std::make_pair(std::make_optional<Token>(TokenType::FOR, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
-					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  
-						|| ss.str() == "do" )
+					else if (ss.str() == "switch")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::SWITCH, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "case")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::CASE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "default")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::DEFAULT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}					
+					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "do" )
 					{
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidIdentifier));
 					}
@@ -423,8 +437,19 @@ namespace miniplc0 {
 					{
 						return std::make_pair(std::make_optional<Token>(TokenType::FOR, ss.str(), pos, currentPos()), std::optional<CompilationError>());
 					}
-					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct" || ss.str() == "switch" || ss.str() == "case" || ss.str() == "default"  
-						|| ss.str() == "do")
+					else if (ss.str() == "switch")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::SWITCH, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "case")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::CASE, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "default")
+					{
+						return std::make_pair(std::make_optional<Token>(TokenType::DEFAULT, ss.str(), pos, currentPos()), std::optional<CompilationError>());
+					}
+					else if (ss.str() == "char" || ss.str() == "double" || ss.str() == "struct"	|| ss.str() == "do")
 					{
 						return std::make_pair(std::optional<Token>(), std::make_optional<CompilationError>(pos, ErrorCode::ErrInvalidIdentifier));
 					}
@@ -611,6 +636,11 @@ namespace miniplc0 {
 			case COMMA_STATE:{
 				unreadLast();
 				return std::make_pair(std::make_optional<Token>(TokenType::COMMA, ',', pos, currentPos()), std::optional<CompilationError>());
+			}
+			// :
+			case COLON_STATE:{
+				unreadLast();
+				return std::make_pair(std::make_optional<Token>(TokenType::COLON, ':', pos, currentPos()), std::optional<CompilationError>());
 			}
 
 			// 预料之外的状态，如果执行到了这里，说明程序异常

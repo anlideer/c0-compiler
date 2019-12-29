@@ -12,7 +12,6 @@ namespace miniplc0 {
 		NULL_TOKEN,
 		UNSIGNED_INTEGER,
 		IDENTIFIER,
-		VAR,
 		CONST,
 		INT,
 		VOID,
@@ -22,7 +21,7 @@ namespace miniplc0 {
 		MULTIPLICATION_SIGN,
 		DIVISION_SIGN,
 		EQUAL_SIGN,
-		SEMICOLON,
+		SEMICOLON,	// ;
 		LEFT_BRACKET,
 		RIGHT_BRACKET,
 		LEFT_BRACE,
@@ -37,12 +36,16 @@ namespace miniplc0 {
 		NOTBIGGER_SIGN,
 		NOTSMALLER_SIGN,
 		NOTEQUAL_SIGN,
-		COMMA,
+		COMMA,	// ,
 		RETURN,
 		BREAK,
 		CONTINUE,
 		FOR,
-		
+		SWITCH,
+		CASE,
+		DEFAULT,
+		COLON, // :
+
 
 	};
 

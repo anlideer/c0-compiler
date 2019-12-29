@@ -38,6 +38,7 @@ namespace miniplc0 {
 			LEFTBRACE_STATE,
 			RIGHTBRACE_STATE,
 			COMMA_STATE,
+			COLON_STATE,
 		};
 	public:
 		Tokenizer(std::istream& ifs)

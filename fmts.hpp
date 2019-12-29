@@ -127,7 +127,7 @@ namespace fmt {
 				name = "Since you have a variable sharing the same name with this function, you cannot call it";
 				break;
 			case miniplc0::ErrJmpNotInLoop:
-				name = "You can't use break & continue out of loop statement";
+				name = "You can't use break & continue out of loop statement. You can't use break out of switch statement";
 				break;
 			case miniplc0::ErrMyFault:
 				name = "My code goes wrong, sorry";
@@ -138,6 +138,25 @@ namespace fmt {
 			case miniplc0::ErrForUpdate:
 				name = "Invalid for-update-statement";
 				break;
+			case miniplc0::ErrSwitc:
+				name = "Invalid switch-statement";
+				break;
+			case miniplc0::ErrNoLeftBracket:
+				name = "Expect left bracket";
+				break;
+			case miniplc0::ErrNoLeftBrace:
+				name = "Expect left brace";
+				break;
+			case miniplc0::ErrCaseAfterDefault:
+				name = "There can't be any other 'case' / 'default' after 'default'";
+				break;
+			case miniplc0::ErrNoColon:
+				name = "Expect Colon here";
+				break;
+			case miniplc0::ErrLabeledStatement:
+				name = "Invalid labeled-statement";
+				break;
+
 
 			default:
 				name = "Error occurs.";
@@ -189,9 +208,6 @@ namespace fmt {
 				break;
 			case miniplc0::IDENTIFIER:
 				name = "Identifier";
-				break;
-			case miniplc0::VAR:
-				name = "Var";
 				break;
 			case miniplc0::CONST:
 				name = "Const";
@@ -279,6 +295,18 @@ namespace fmt {
 				break;
 			case miniplc0::FOR:
 				name = "For";
+				break;
+			case miniplc0::SWITCH:
+				name = "Switch";
+				break;
+			case miniplc0::CASE:
+				name = "Case";
+				break;
+			case miniplc0::DEFAULT:
+				name = "Default";
+				break;
+			case miniplc0::COLON:
+				name = "Colon";
 				break;
 
 			default:

@@ -12,6 +12,7 @@ namespace miniplc0 {
 	std::stack<int> loop_stack;	// for "while" jump
 	std::vector<std::stack<int>> break_stack;	// for "break"
 	std::vector<std::stack<int>> continue_stack;	// for "continue"
+	std::vector<std::stack<int>> break_switch_stack;	// for "break" in switch
 
 	int indexCnt = 0;	// for all index count
 	bool returned = false;
@@ -24,6 +25,7 @@ namespace miniplc0 {
 	std::string currentFunc;	// for every single func-difinition / func-call, we need to give its name to this variable
 	int param_size_tmp = 0;
 	int loopLevel = 0;
+	int switchLevel = 0;
 
 	
 
@@ -266,7 +268,7 @@ namespace miniplc0 {
 
 		returned = false;
 		// <compound-statement>
-		auto err = analyseCompoundStatement(false);
+		auto err = analyseCompoundStatement(false, false);
 		if (err.has_value())
 			return err;
 		if (returned == false && getFuncType(currentFunc) != TokenType::VOID)
@@ -283,7 +285,7 @@ namespace miniplc0 {
 
 
 	// <compound-statement>
-	std::optional<CompilationError> Analyser::analyseCompoundStatement(bool inLoop){
+	std::optional<CompilationError> Analyser::analyseCompoundStatement(bool inLoop, bool inSwitch){
 		auto next = nextToken();
 		// {
 		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
@@ -327,7 +329,8 @@ namespace miniplc0 {
 			if (!next.has_value() || (next.value().GetType() != TokenType::LEFT_BRACE && next.value().GetType() != TokenType::IF && next.value().GetType() != TokenType::WHILE
 				&& next.value().GetType() != TokenType::PRINT && next.value().GetType() != TokenType::SCAN && next.value().GetType() != TokenType::IDENTIFIER
 				&& next.value().GetType() != TokenType::SEMICOLON && next.value().GetType() != TokenType::RETURN && next.value().GetType() != TokenType::BREAK 
-				&& next.value().GetType() != TokenType::CONTINUE && next.value().GetType() != TokenType::FOR))
+				&& next.value().GetType() != TokenType::CONTINUE && next.value().GetType() != TokenType::FOR && next.value().GetType() != TokenType::SWITCH 
+				))
 			{
 				unreadToken();
 				break;
@@ -335,7 +338,7 @@ namespace miniplc0 {
 			else
 			{
 				unreadToken();
-				auto err = analyseStatement(inLoop);
+				auto err = analyseStatement(inLoop, inSwitch);
 				if (err.has_value())
 					return err;
 			}
@@ -352,7 +355,7 @@ namespace miniplc0 {
 	}
 
 	// <statement>
-	std::optional<CompilationError> Analyser::analyseStatement(bool inLoop){
+	std::optional<CompilationError> Analyser::analyseStatement(bool inLoop, bool inSwitch){
 			auto next = nextToken();
 			if (!next.has_value())
 			{
@@ -363,7 +366,7 @@ namespace miniplc0 {
 			else if (next.value().GetType() == TokenType::LEFT_BRACE)
 			{
 				unreadToken();
-				auto err = analyseCompoundStatement(inLoop);
+				auto err = analyseCompoundStatement(inLoop, inSwitch);
 				if (err.has_value())
 					return err;
 			}
@@ -371,16 +374,24 @@ namespace miniplc0 {
 			else if (next.value().GetType() == TokenType::IF)
 			{
 				unreadToken();
-				auto err = analyseConditionStatement(inLoop);
+				auto err = analyseConditionStatement(inLoop, inSwitch);
 				if (err.has_value())
 					return err;
 
+			}
+			// <switch-statement>
+			else if (next.value().GetType() == TokenType::SWITCH)
+			{
+				unreadToken();
+				auto err = analyseSwitchStatement(inLoop, inSwitch);
+				if (err.has_value())
+					return err;
 			}
 			// <loop-statement>
 			else if (next.value().GetType() == TokenType::WHILE || next.value().GetType() == TokenType::FOR)
 			{
 				unreadToken();
-				auto err = analyseLoopStatement();
+				auto err = analyseLoopStatement(inSwitch);
 				if (err.has_value())
 					return err;
 
@@ -397,16 +408,30 @@ namespace miniplc0 {
 			// break;
 			else if (next.value().GetType() == TokenType::BREAK)
 			{
-				if (!inLoop)
+				if (inSwitch)
+				{
+					// ;
+					next = nextToken();
+					if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+					// instruction
+					_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+					// add to stack
+					break_switch_stack[switchLevel-1].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
+				}
+				else if (inLoop)
+				{
+					next = nextToken();
+					// ;
+					if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
+					// instruction
+					_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
+					// add to stack
+					break_stack[loopLevel-1].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
+				}
+				else
 					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrJmpNotInLoop);
-				next = nextToken();
-				// ;
-				if (!next.has_value() || next.value().GetType() != TokenType::SEMICOLON)
-					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoSemicolon);
-				// instruction
-				_instructions.emplace_back(Operation::JMP, indexCnt++, 0);
-				// add to stack
-				break_stack[loopLevel-1].push(std::distance(_instructions.begin(), _instructions.end()) - 1);
 			}
 			//continue;
 			else if (next.value().GetType() == TokenType::CONTINUE)
@@ -484,6 +509,160 @@ namespace miniplc0 {
 			return {};
 
 	}
+
+
+	// <switch-statement> ::= 'switch' '(' <expression> ')' '{' {<labeled-statement>} '}'
+	/*
+	<labeled-statement> ::= 
+    	 'case' (<integer-literal>|<char-literal>) ':' <statement>
+    	|'default' ':' <statement>
+	*/
+	std::optional<CompilationError> Analyser::analyseSwitchStatement(bool inLoop, bool inSwitch){
+		switchLevel++;
+		break_switch_stack.push_back(std::stack<int>);
+
+
+		// switch
+		auto next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::SWITCH)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrSwitch);
+
+		// (
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBracket);
+
+		// <expression>
+		auto err = analyseExpression();
+		if (err.has_value())
+			return err;
+
+		// )
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACKET)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBracket);
+
+		// {
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::LEFT_BRACE)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoLeftBrace);
+
+
+		// <labeled-statement>
+		auto err = analyseLabeledStatementSeq(inLoop, true);
+		if (err.has_value())
+			return err;
+
+
+		// }
+		next = nextToken();
+		if (!next.has_value() || next.value().GetType() != TokenType::RIGHT_BRACE)
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoRightBrace);
+
+
+		// clear 
+		_instructions.emplace_back(Operation::POP, indexCnt++);
+		switchLevel--;
+		break_switch_stack.pop_back();
+		return {};
+	}
+
+	// <labeled-statement>
+	/*
+	<labeled-statement> ::= 
+    	 'case' (<integer-literal>|<char-literal>) ':' <statement>
+    	|'default' ':' <statement>
+	*/	
+	std::optional<CompilationError> Analyser::analyseLabeledStatementSeq(bool inLoop, bool inSwitch){
+		auto next;
+		bool hasDefault = false;
+		int jne_index = 0;
+		while(true)
+		{
+			// case / default
+			next = nextToken();
+			if (!next.has_value())
+			{
+				unreadToken();
+				break;
+			}
+			else if (next.value().GetType() == TokenType::CASE)
+			{
+
+				if (hasDefault)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrCaseAfterDefault);
+
+				// <int> / <char> (now we only have <int>)
+				next = nextToken();
+				if (!next.has_value())
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLabeledStatement);
+				else if (next.value().GetType() == TokenType::INT)
+				{
+					// instruction
+					_instructions.emplace_back(Operation::DUP, indexCnt++);
+					_instructions.emplace_back(Operation::IPUSH, indexCnt++, next.value().GetValue());
+					_instructions.emplace_back(Operation::ICMP, indexCnt++);
+					_instructions.emplace_back(Operation::IPUSH, indexCnt++, 0);
+					_instructions.emplace_back(Operation::JNE, indexCnt++, 0);
+					// save the index of the JNE instruction
+					jne_index = std::distance(_instructions.begin(), _instructions.end())-1;
+
+					// :
+					next = nextToken();
+					if (!next.has_value() || next.value().GetType() != TokenType::COLON)
+						return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoColon);
+
+					// <statement>
+					auto err = analyseStatement(inLoop, true);
+					if (err.has_value())
+						return err;
+
+					// statement over, deal with the jne 
+					_instructions[jne_index].SetX(indexCnt);
+
+				}
+				else
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrLabeledStatement);
+
+			}
+			else if (next.value().GetType() == TokenType::DEFAULT)
+			{
+				if (hasDefault)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrCaseAfterDefault);
+
+				hasDefault = true;
+				// :
+				next = nextToken();
+				if (!next.has_value() || next.value().GetType() != TokenType::COLON)
+					return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrNoColon);
+
+				// <statement>
+				auto err = analyseStatement(inLoop, true);
+				if (err.has_value())
+					return err;
+
+			}
+			else
+			{
+				unreadToken();
+				break;
+			}
+		}
+
+
+		// the whole statement-seq is over, deal with the breaks
+		if (switchLevel > break_switch_stack.size())
+			return std::make_optional<CompilationError>(_current_pos, ErrorCode::ErrMyFault);
+		std::stack<int> tmp_stack = break_switch_stack[switchLevel-1];
+		while(!tmp_stack.empty())
+		{
+			int tmpi = tmp_stack.top();
+			_instructions[tmpi].SetX(indexCnt);
+		}
+
+		return {};
+	}	
+
 
 
 	// <return-statement>
@@ -752,7 +931,7 @@ namespace miniplc0 {
 	<for-update-expression> ::=
     	(<assignment-expression>|<function-call>){','(<assignment-expression>|<function-call>)}
 	*/
-	std::optional<CompilationError> Analyser::analyseLoopStatement(){
+	std::optional<CompilationError> Analyser::analyseLoopStatement(bool inSwitch){
 		loopLevel++;
 		break_stack.push_back(std::stack<int>());
 		continue_stack.push_back(std::stack<int>());
@@ -855,7 +1034,7 @@ namespace miniplc0 {
 
 
 		// <statement>
-		auto err = analyseStatement(true);
+		auto err = analyseStatement(true, inSwitch);
 		if (err.has_value())
 			return err;
 
@@ -1057,7 +1236,7 @@ namespace miniplc0 {
 	<condition-statement> ::= 
      	'if' '(' <condition> ')' <statement> ['else' <statement>]
 	*/
-	std::optional<CompilationError> Analyser::analyseConditionStatement(bool inLoop){
+	std::optional<CompilationError> Analyser::analyseConditionStatement(bool inLoop, bool inSwitch){
 		auto next = nextToken();
 		// if
 		if (!next.has_value() || next.value().GetType() != TokenType::IF)
@@ -1077,7 +1256,7 @@ namespace miniplc0 {
 
 		// if the condition is satisfied, we can process this statement
 		// <statement>
-		err = analyseStatement(inLoop);
+		err = analyseStatement(inLoop, inSwitch);
 		if (err.has_value())
 			return err;
 
@@ -1099,7 +1278,7 @@ namespace miniplc0 {
 			_instructions[tmp_pos].SetX(indexCnt);
 			condition_stack.pop();		
 			// <statement>
-			err = analyseStatement(false);
+			err = analyseStatement(false, inSwitch);
 			if (err.has_value())
 				return err;
 

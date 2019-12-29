@@ -37,6 +37,8 @@ namespace miniplc0 {
 		ErrInvalidPrint,
 		ErrNoRightBracket,
 		ErrNoRightBrace,
+		ErrNoLeftBracket,
+		ErrNoLeftBrace,
 		ErrInvalidInteger,
 		ErrInvalidNotEqual,
 		ErrIncompleteFunctionCall,
@@ -60,6 +62,11 @@ namespace miniplc0 {
 		ErrMyFault,
 		ErrForInit,
 		ErrForUpdate,
+		ErrSwitch,
+		ErrCaseAfterDefault,
+		ErrNoCOLON,
+		ErrLabeledStatement,
+
 
 
 	};

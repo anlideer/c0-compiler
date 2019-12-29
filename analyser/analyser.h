@@ -61,15 +61,15 @@ namespace miniplc0 {
 		// <parameter-declaration>
 		std::optional<CompilationError> analyseParameter();
 		// <compound-statement>
-		std::optional<CompilationError> analyseCompoundStatement(bool inLoop);
+		std::optional<CompilationError> analyseCompoundStatement(bool inLoop, bool inSwitch);
 		// <condition-statement>
-		std::optional<CompilationError> analyseConditionStatement(bool inLoop);
+		std::optional<CompilationError> analyseConditionStatement(bool inLoop, bool inSwitch);
 		// <condition>
 		std::optional<CompilationError> analyseCondition(bool fromIf);
 		// <statement>
-		std::optional<CompilationError> analyseStatement(bool inLoop);
+		std::optional<CompilationError> analyseStatement(bool inLoop, bool inSwitch);
 		// <loop-statement>
-		std::optional<CompilationError> analyseLoopStatement();
+		std::optional<CompilationError> analyseLoopStatement(bool inSwitch);
 		// <print-statement>
 		std::optional<CompilationError> analysePrintStatement();
 		// <printable-list>
@@ -84,6 +84,10 @@ namespace miniplc0 {
 		std::optional<CompilationError> analyseForInitStatement();
 		// <for-update-expression>
 		std::optional<CompilationError> analyseForUpdate();
+		// <switch-statement>
+		std::optional<CompilationError> analyseSwitchStatement(bool inLoop, bool inSwitch);
+		// <labeled-statement>
+		std::optional<CompilationError> analyseLabeledStatementSeq(bool inLoop, bool inSwitch);
 
 
 		// TODO: Token 缓冲区相关操作
